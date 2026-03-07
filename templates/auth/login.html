@@ -17,12 +17,12 @@
                         
                         <!-- User Type Selection -->
                         <div class="form-group mb-4">
-                            <input type="hidden" name="user_type" value="student" id="user_type_hidden">
+                            <input type="hidden" name="user_type" value="{{ user_type if user_type else 'student' }}" id="user_type_hidden">
                             <div class="d-grid gap-2" style="grid-template-columns: 1fr 1fr;">
-                                <button type="button" class="btn btn-primary btn-lg d-flex align-items-center justify-content-center py-3 user-type-btn active" data-type="student">
+                                <button type="button" class="btn {% if not user_type or user_type == 'student' %}btn-primary active{% else %}btn-outline-primary{% endif %} btn-lg d-flex align-items-center justify-content-center py-3 user-type-btn" data-type="student">
                                     <i class="fas fa-user-graduate me-2"></i>Student
                                 </button>
-                                <button type="button" class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-center py-3 user-type-btn" data-type="admin">
+                                <button type="button" class="btn {% if user_type == 'admin' %}btn-primary active{% else %}btn-outline-primary{% endif %} btn-lg d-flex align-items-center justify-content-center py-3 user-type-btn" data-type="admin">
                                     <i class="fas fa-user-shield me-2"></i>Admin
                                 </button>
                             </div>

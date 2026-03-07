@@ -54,7 +54,7 @@ def login():
             else:
                 flash('Invalid email or password', 'error')
     
-    return render_template(mobile_template('auth/login.html'), form=form)
+    return render_template(mobile_template('auth/login.html'), form=form, user_type=user_type)
 
 @auth_bp.route('/student/register', methods=['GET', 'POST'])
 def student_register():
