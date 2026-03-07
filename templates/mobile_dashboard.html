@@ -1,0 +1,218 @@
+{% extends "mobile_base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+<div class="mobile-card">
+    <div class="d-flex align-items-center mb-3">
+        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+            <i class="fas fa-user fa-2x"></i>
+        </div>
+        <div>
+            <h3 class="mb-1">Welcome, {{ current_user.first_name }}!</h3>
+            <p class="text-muted mb-0">{{ current_user.department }} • Year {{ current_user.year }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <h4>{{ registered_events|length if registered_events else 0 }}</h4>
+        <p>Registered Events</p>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #198754, #157347);">
+        <h4>{{ recommended_events|length if recommended_events else 0 }}</h4>
+        <p>Recommended</p>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #ffc107, #e0a800);">
+        <h4>{{ notifications|length if notifications else 0 }}</h4>
+        <p>Notifications</p>
+    </div>
+    <div class="stat-card" style="background: linear-gradient(135deg, #6c757d, #495057);">
+        <h4>{{ upcoming_events|length if upcoming_events else 0 }}</h4>
+        <p>Upcoming Events</p>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="mobile-card">
+    <h3>Quick Actions</h3>
+    <div class="d-grid gap-2">
+        <a href="{{ url_for('main.events') }}" class="mobile-btn">
+            <i class="fas fa-search me-2"></i>
+            Browse Events
+        </a>
+        <a href="{{ url_for('main.my_events') }}" class="mobile-btn mobile-btn-secondary">
+            <i class="fas fa-calendar-check me-2"></i>
+            My Events
+        </a>
+        <a href="{{ url_for('main.calendar_view') }}" class="mobile-btn mobile-btn-success">
+            <i class="fas fa-calendar-week me-2"></i>
+            Calendar View
+        </a>
+        <a href="{{ url_for('main.notifications') }}" class="mobile-btn mobile-btn-secondary">
+            <i class="fas fa-bell me-2"></i>
+            Notifications
+        </a>
+    </div>
+</div>
+
+<!-- Recent Events -->
+<div class="mobile-card">
+    <h3>Recent Upcoming Events</h3>
+    {% if recent_events %}
+        <ul class="mobile-list">
+            {% for event in recent_events %}
+                <li>
+                    <div class="icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="content">
+                        <div class="title">{{ event.title }}</div>
+                        <div class="subtitle">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ event.date.strftime('%d %b %Y') }}
+                            {% if event.time %}
+                                at {{ event.time.strftime('%I:%M %p') }}
+                            {% endif %}
+                        </div>
+                        <div class="subtitle">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {{ event.location }}
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('main.events') }}" class="mobile-btn mobile-btn-secondary">
+            View All Events
+        </a>
+    {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No upcoming events found</p>
+            <a href="{{ url_for('main.events') }}" class="mobile-btn">
+                Browse Events
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Notifications Section -->
+{% if notifications %}
+<div class="mobile-card">
+    <h3>
+        <i class="fas fa-bell me-2"></i>
+        Recent Notifications
+    </h3>
+    <ul class="mobile-list">
+        {% for notification in notifications[:3] %}
+            <li>
+                <div class="icon" style="background: {% if not notification.is_read %}var(--danger-color){% else %}var(--secondary-color){% endif %};">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="content">
+                    <div class="title">{{ notification.title }}</div>
+                    <div class="subtitle">{{ notification.created_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+                    <div class="subtitle">{{ notification.message[:50] }}{% if notification.message|length > 50 %}...{% endif %}</div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+    {% if notifications|length > 3 %}
+        <a href="{{ url_for('main.notifications') }}" class="mobile-btn mobile-btn-secondary">
+            View All Notifications
+        </a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Recommended Events -->
+{% if recommended_events %}
+<div class="mobile-card">
+    <h3>
+        <i class="fas fa-star me-2"></i>
+        Recommended for You
+    </h3>
+    <ul class="mobile-list">
+        {% for event in recommended_events %}
+            <li>
+                <div class="icon" style="background: var(--warning-color);">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="content">
+                    <div class="title">{{ event.title }}</div>
+                    <div class="subtitle">
+                        <i class="fas fa-clock me-1"></i>
+                        {{ event.date.strftime('%d %b %Y') }}
+                    </div>
+                    <div class="subtitle">
+                        <i class="fas fa-tag me-1"></i>
+                        {{ event.category }}
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('main.events') }}" class="mobile-btn">
+        Explore More Events
+    </a>
+</div>
+{% endif %}
+
+<!-- User Profile Quick Actions -->
+<div class="mobile-card">
+    <h3>My Profile</h3>
+    <div class="d-grid gap-2">
+        <a href="#" class="mobile-btn mobile-btn-secondary" onclick="showEditProfile()">
+            <i class="fas fa-edit me-2"></i>
+            Edit Profile
+        </a>
+        <a href="#" class="mobile-btn mobile-btn-secondary" onclick="showSettings()">
+            <i class="fas fa-cog me-2"></i>
+            Settings
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="mobile-btn mobile-btn-danger">
+            <i class="fas fa-sign-out-alt me-2"></i>
+            Logout
+        </a>
+    </div>
+</div>
+
+<script>
+function showEditProfile() {
+    alert('Edit Profile feature coming soon!');
+}
+
+function showSettings() {
+    alert('Settings feature coming soon!');
+}
+
+// Add pull-to-refresh functionality
+let startY = 0;
+let isPulling = false;
+
+document.addEventListener('touchstart', function(e) {
+    startY = e.touches[0].pageY;
+    isPulling = true;
+});
+
+document.addEventListener('touchmove', function(e) {
+    if (!isPulling) return;
+    
+    const currentY = e.touches[0].pageY;
+    const diff = currentY - startY;
+    
+    if (diff > 100) {
+        // Pull to refresh
+        location.reload();
+    }
+});
+
+document.addEventListener('touchend', function() {
+    isPulling = false;
+});
+</script>
+{% endblock %}

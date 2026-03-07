@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AU Event System{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body bg-primary text-white rounded">
+                    <h4 class="mb-1">Welcome back, {{ current_user.full_name }}!</h4>
+                    <p class="mb-0">{{ current_user.department }} - {{ current_user.student_id }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="display-6 text-primary mb-2">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3 class="text-primary mb-1">{{ registered_events|length }}</h3>
+                    <p class="text-muted mb-0">Registered Events</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="display-6 text-success mb-2">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="text-success mb-1">{{ recommended_events|length }}</h3>
+                    <p class="text-muted mb-0">Recommended</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="display-6 text-warning mb-2">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3 class="text-warning mb-1">{{ notifications|length }}</h3>
+                    <p class="text-muted mb-0">New Notifications</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="display-6 text-info mb-2">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 class="text-info mb-1">{{ recent_events|length }}</h3>
+                    <p class="text-muted mb-0">Upcoming Events</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- My Registered Events -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-check text-primary me-2"></i>My Registered Events
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if registered_events %}
+                        <div class="row">
+                            {% for event in registered_events %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border-left-primary h-100">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-primary">{{ event.title }}</h6>
+                                            <p class="text-muted small mb-2">
+                                                <i class="fas fa-calendar me-1"></i>{{ event.date.strftime('%d %b %Y') }}
+                                                <i class="fas fa-clock ms-2 me-1"></i>{{ event.time.strftime('%H:%M') }}
+                                            </p>
+                                            <p class="text-muted small mb-2">
+                                                <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <span class="badge bg-primary">{{ event.department }}</span>
+                                                    <span class="badge bg-secondary ms-1">{{ event.category }}</span>
+                                                </div>
+                                                <a href="{{ url_for('events.event_detail', id=event.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye me-1"></i>View
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times text-muted display-4 mb-3"></i>
+                            <h6 class="text-muted">No registered events yet</h6>
+                            <p class="text-muted">Discover and register for exciting events!</p>
+                            <a href="{{ url_for('events.browse') }}" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Browse Events
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recommended Events -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star text-success me-2"></i>Recommended for You
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recommended_events %}
+                        <div class="row">
+                            {% for event in recommended_events %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border-left-success h-100">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-success">{{ event.title }}</h6>
+                                            <p class="text-muted small mb-2">
+                                                <i class="fas fa-calendar me-1"></i>{{ event.date.strftime('%d %b %Y') }}
+                                                <i class="fas fa-clock ms-2 me-1"></i>{{ event.time.strftime('%H:%M') }}
+                                            </p>
+                                            <p class="card-text">{{ event.description[:80] }}{% if event.description|length > 80 %}...{% endif %}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <span class="badge bg-primary">{{ event.department }}</span>
+                                                    <span class="badge bg-secondary ms-1">{{ event.category }}</span>
+                                                </div>
+                                                <a href="{{ url_for('events.event_detail', id=event.id) }}" class="btn btn-sm btn-success">
+                                                    <i class="fas fa-plus me-1"></i>Register
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-lightbulb text-muted display-4 mb-3"></i>
+                            <h6 class="text-muted">No recommendations available</h6>
+                            <p class="text-muted">Check back later for personalized event suggestions</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- Notifications -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bell text-warning me-2"></i>Recent Notifications
+                        {% if notifications %}
+                            <span class="badge bg-warning text-dark">{{ notifications|length }}</span>
+                        {% endif %}
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    {% if notifications %}
+                        <div class="list-group list-group-flush">
+                            {% for notification in notifications %}
+                                <div class="list-group-item border-0 py-3">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ notification.title }}</h6>
+                                        <small class="text-muted">{{ notification.created_at.strftime('%d %b') }}</small>
+                                    </div>
+                                    <p class="mb-1 small">{{ notification.message[:100] }}{% if notification.message|length > 100 %}...{% endif %}</p>
+                                    <small class="text-muted">
+                                        <span class="badge bg-{{ 'primary' if notification.type == 'info' else notification.type }}">
+                                            {{ notification.type.title() }}
+                                        </span>
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="card-footer bg-white border-top">
+                            <a href="{{ url_for('main.notifications') }}" class="btn btn-sm btn-outline-primary w-100">
+                                <i class="fas fa-list me-1"></i>View All Notifications
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-bell-slash text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No new notifications</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bolt text-primary me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('events.browse') }}" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Browse Events
+                        </a>
+                        <a href="{{ url_for('events.calendar') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-calendar me-2"></i>Event Calendar
+                        </a>
+                        <a href="{{ url_for('main.profile') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-user me-2"></i>My Profile
+                        </a>
+                        <a href="{{ url_for('main.notifications') }}" class="btn btn-outline-warning">
+                            <i class="fas fa-bell me-2"></i>Notifications
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 4px solid #007bff !important;
+}
+.border-left-success {
+    border-left: 4px solid #28a745 !important;
+}
+</style>
+{% endblock %}

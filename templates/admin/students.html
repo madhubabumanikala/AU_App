@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Students Management - AU Event System{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-users text-primary me-2"></i>Students Management
+            </h2>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="department" class="form-label">Department</label>
+                            <select class="form-select" id="department" name="department">
+                                <option value="">All Departments</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept }}" {% if current_department == dept %}selected{% endif %}>{{ dept }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="year" class="form-label">Year</label>
+                            <select class="form-select" id="year" name="year">
+                                <option value="">All Years</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" placeholder="Student name or ID">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                            <a href="{{ url_for('admin.students') }}" class="btn btn-secondary ms-2">
+                                <i class="fas fa-times me-1"></i>Clear
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Students ({{ students.total }} total)</h5>
+                </div>
+                <div class="card-body">
+                    {% if students.items %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Student ID</th>
+                                        <th>Department</th>
+                                        <th>Year</th>
+                                        <th>Email</th>
+                                        <th>Registered Events</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students.items %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ student.full_name }}</strong><br>
+                                                {% if student.phone_number %}
+                                                    <small class="text-muted">{{ student.phone_number }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ student.student_id }}</td>
+                                            <td>{{ student.department }}</td>
+                                            <td>{{ student.year }}</td>
+                                            <td>{{ student.email }}</td>
+                                            <td>
+                                                <span class="badge bg-primary">{{ student.event_registrations.count() }}</span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('admin.student_details', student_id=student.id) }}" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye me-1"></i>View Details
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if students.pages > 1 %}
+                            <nav aria-label="Students pagination">
+                                <ul class="pagination justify-content-center">
+                                    {% if students.has_prev %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('admin.students', page=students.prev_num, department=current_department) }}">Previous</a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% for page_num in students.iter_pages() %}
+                                        {% if page_num %}
+                                            {% if page_num != students.page %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="{{ url_for('admin.students', page=page_num, department=current_department) }}">{{ page_num }}</a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item active">
+                                                    <span class="page-link">{{ page_num }}</span>
+                                                </li>
+                                            {% endif %}
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <span class="page-link">...</span>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if students.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ url_for('admin.students', page=students.next_num, department=current_department) }}">Next</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-user-times text-muted fa-3x mb-3"></i>
+                            <h5 class="text-muted">No students found</h5>
+                            <p class="text-muted">No students match your search criteria</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

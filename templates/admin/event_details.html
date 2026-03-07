@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} - Event Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>{{ event.title }}</h2>
+                    <p class="text-muted mb-0">{{ event.department }} - {{ event.category.title() }}</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('admin.edit_event', event_id=event.id) }}" class="btn btn-warning">
+                        <i class="fas fa-edit me-1"></i>Edit Event
+                    </a>
+                    <a href="{{ url_for('admin.attendance', event_id=event.id) }}" class="btn btn-success ms-2">
+                        <i class="fas fa-clipboard-check me-1"></i>Attendance
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Event Information -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Event Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Date:</strong> {{ event.date.strftime('%A, %d %B %Y') }}</p>
+                            <p><strong>Time:</strong> {{ event.time.strftime('%H:%M') }}</p>
+                            <p><strong>Location:</strong> {{ event.location }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Department:</strong> {{ event.department }}</p>
+                            <p><strong>Category:</strong> {{ event.category.title() }}</p>
+                            <p><strong>Created:</strong> {{ event.created_at.strftime('%d %b %Y') }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6>Description</h6>
+                    <p>{{ event.description }}</p>
+                </div>
+            </div>
+
+            <!-- Registrations -->
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Registrations ({{ registrations|length }})</h5>
+                    {% if event.max_participants %}
+                        <span class="badge bg-info">{{ registrations|length }} / {{ event.max_participants }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if registrations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Department</th>
+                                        <th>Registration Date</th>
+                                        <th>Attendance</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for registration in registrations %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ registration.student.full_name }}</strong><br>
+                                                <small class="text-muted">{{ registration.student.student_id }}</small>
+                                            </td>
+                                            <td>{{ registration.student.department }}</td>
+                                            <td>{{ registration.registration_date.strftime('%d %b %Y %H:%M') }}</td>
+                                            <td>
+                                                {% if registration.attendance_status %}
+                                                    <span class="badge bg-success">Present</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Not Marked</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('admin.student_details', student_id=registration.student.id) }}" 
+                                                   class="btn btn-sm btn-outline-primary">View</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-user-times text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No registrations yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics & Actions -->
+        <div class="col-lg-4">
+            <!-- Statistics -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Total Registrations:</span>
+                        <strong>{{ event.registered_count }}</strong>
+                    </div>
+                    {% if event.max_participants %}
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Available Slots:</span>
+                            <strong>{{ event.available_slots }}</strong>
+                        </div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Attendance Marked:</span>
+                        <strong>{{ registrations|selectattr('attendance_status')|list|length }}</strong>
+                    </div>
+                    {% if feedbacks %}
+                        <div class="d-flex justify-content-between">
+                            <span>Average Rating:</span>
+                            <strong>{{ "%.1f"|format(event.average_rating) }}/5</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Status</h6>
+                </div>
+                <div class="card-body">
+                    {% if event.is_active %}
+                        {% if event.is_upcoming %}
+                            <span class="badge bg-success fs-6">Active & Upcoming</span>
+                        {% else %}
+                            <span class="badge bg-info fs-6">Active & Completed</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="badge bg-danger fs-6">Inactive</span>
+                    {% endif %}
+                    
+                    {% if event.is_full %}
+                        <br><span class="badge bg-warning text-dark mt-2">Event Full</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Feedbacks -->
+            {% if feedbacks %}
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h6 class="mb-0">Recent Feedback</h6>
+                    </div>
+                    <div class="card-body">
+                        {% for feedback in feedbacks[:3] %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">{{ feedback.student.full_name }}</small>
+                                    {% if feedback.rating %}
+                                        <div>
+                                            {% for i in range(1, 6) %}
+                                                {% if i <= feedback.rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-muted"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% if feedback.comments %}
+                                    <p class="small mb-0">{{ feedback.comments[:100] }}{% if feedback.comments|length > 100 %}...{% endif %}</p>
+                                {% endif %}
+                            </div>
+                            {% if not loop.last %}<hr>{% endif %}
+                        {% endfor %}
+                        
+                        {% if feedbacks|length > 3 %}
+                            <div class="text-center mt-3">
+                                <small class="text-muted">And {{ feedbacks|length - 3 }} more feedback(s)</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

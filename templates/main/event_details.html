@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} - AU Event System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Main Event Details -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                {% if event.poster_image %}
+                    <img src="{{ url_for('static', filename='uploads/' + event.poster_image) }}" 
+                         class="card-img-top" style="height: 300px; object-fit: cover;" 
+                         alt="{{ event.title }}">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h2 class="card-title">{{ event.title }}</h2>
+                    
+                    <!-- Event Meta Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="fas fa-calendar text-primary me-2"></i>
+                                <strong>Date:</strong> {{ event.date.strftime('%A, %B %d, %Y') }}
+                            </p>
+                            <p class="mb-2">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <strong>Time:</strong> {{ event.time.strftime('%H:%M') }}
+                            </p>
+                            <p class="mb-2">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                <strong>Location:</strong> {{ event.location }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="fas fa-building text-primary me-2"></i>
+                                <strong>Department:</strong> {{ event.department }}
+                            </p>
+                            <p class="mb-2">
+                                <i class="fas fa-tag text-primary me-2"></i>
+                                <strong>Category:</strong> 
+                                <span class="badge bg-secondary">{{ event.category.title() }}</span>
+                            </p>
+                            {% if event.max_participants %}
+                                <p class="mb-2">
+                                    <i class="fas fa-users text-primary me-2"></i>
+                                    <strong>Capacity:</strong> {{ event.max_participants }} participants
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Event Description -->
+                    <div class="mb-4">
+                        <h5>About This Event</h5>
+                        <p class="text-muted">{{ event.description }}</p>
+                    </div>
+
+                    <!-- Registration Status -->
+                    {% if current_user.is_authenticated %}
+                        <div class="alert {% if is_registered %}alert-success{% elif event.is_full %}alert-danger{% else %}alert-info{% endif %}">
+                            {% if is_registered %}
+                                <i class="fas fa-check-circle me-2"></i>
+                                You are registered for this event!
+                                {% if registration.qr_code_path %}
+                                    <a href="{{ url_for('static', filename='uploads/qrcodes/' + registration.qr_code_path) }}" 
+                                       class="btn btn-sm btn-success ms-2" target="_blank">
+                                        <i class="fas fa-qrcode me-1"></i>View QR Code
+                                    </a>
+                                {% endif %}
+                            {% elif event.is_full %}
+                                <i class="fas fa-times-circle me-2"></i>
+                                This event is currently full. Registration is closed.
+                            {% else %}
+                                <i class="fas fa-info-circle me-2"></i>
+                                You can register for this event.
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Please <a href="{{ url_for('auth.login') }}">login</a> to register for this event.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Event Feedbacks -->
+            {% if feedbacks %}
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-comments me-2"></i>Student Feedback
+                            {% if event.average_rating > 0 %}
+                                <span class="float-end">
+                                    {% for i in range(1, 6) %}
+                                        {% if i <= event.average_rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <small class="text-muted ms-1">({{ "%.1f"|format(event.average_rating) }}/5)</small>
+                                </span>
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% for feedback in feedbacks %}
+                            <div class="mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <strong>{{ feedback.student.full_name }}</strong>
+                                    {% if feedback.rating %}
+                                        <div>
+                                            {% for i in range(1, 6) %}
+                                                {% if i <= feedback.rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-muted"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% if feedback.comments %}
+                                    <p class="mb-1">{{ feedback.comments }}</p>
+                                {% endif %}
+                                <small class="text-muted">{{ feedback.created_at.strftime('%B %d, %Y at %H:%M') }}</small>
+                            </div>
+                        {% endfor %}
+                        
+                        <!-- Feedback Form -->
+                        {% if current_user.is_authenticated and is_registered and registration.attendance_status %}
+                            <div class="mt-4 pt-3 border-top">
+                                <h6>Leave Your Feedback</h6>
+                                <form method="POST" action="{{ url_for('main.submit_feedback', event_id=event.id) }}">
+                                    {{ form.hidden_tag() if form }}
+                                    <div class="mb-3">
+                                        <label class="form-label">Rating</label>
+                                        <select class="form-select" name="rating" required>
+                                            <option value="">Select Rating</option>
+                                            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                                            <option value="4">⭐⭐⭐⭐ Very Good</option>
+                                            <option value="3">⭐⭐⭐ Good</option>
+                                            <option value="2">⭐⭐ Fair</option>
+                                            <option value="1">⭐ Poor</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Comments (Optional)</label>
+                                        <textarea class="form-control" name="comments" rows="3" 
+                                                placeholder="Share your thoughts about this event..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane me-1"></i>Submit Feedback
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Registration Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Registration</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h3 class="text-primary mb-1">{{ event.registered_count }}</h3>
+                        <small class="text-muted">
+                            {% if event.max_participants %}
+                                of {{ event.max_participants }} registered
+                            {% else %}
+                                students registered
+                            {% endif %}
+                        </small>
+                    </div>
+                    
+                    {% if event.max_participants %}
+                        <div class="progress mb-3" style="height: 8px;">
+                            {% set percentage = (event.registered_count / event.max_participants) * 100 %}
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ percentage }}%"></div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if current_user.is_authenticated %}
+                        {% if is_registered %}
+                            <div class="d-grid">
+                                <button class="btn btn-success" disabled>
+                                    <i class="fas fa-check me-1"></i>Registered
+                                </button>
+                                <small class="text-muted mt-2 text-center">
+                                    Registered on {{ registration.registration_date.strftime('%d %b %Y') }}
+                                </small>
+                                <button class="btn btn-outline-danger btn-sm mt-2" 
+                                        onclick="unregisterFromEvent({{ event.id }})">
+                                    <i class="fas fa-times me-1"></i>Unregister
+                                </button>
+                            </div>
+                        {% elif event.is_full %}
+                            <div class="d-grid">
+                                <button class="btn btn-danger" disabled>
+                                    <i class="fas fa-times me-1"></i>Event Full
+                                </button>
+                            </div>
+                        {% elif not event.is_upcoming %}
+                            <div class="d-grid">
+                                <button class="btn btn-secondary" disabled>
+                                    <i class="fas fa-calendar-times me-1"></i>Registration Closed
+                                </button>
+                            </div>
+                        {% else %}
+                            <div class="d-grid">
+                                <button class="btn btn-primary" onclick="registerForEvent({{ event.id }})">
+                                    <i class="fas fa-plus me-1"></i>Register Now
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="d-grid">
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login to Register
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Event Info -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0">Event Information</h6>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted d-block mb-1">Organizer</small>
+                    <p class="mb-3">{{ event.creator.full_name }}</p>
+                    
+                    <small class="text-muted d-block mb-1">Created</small>
+                    <p class="mb-3">{{ event.created_at.strftime('%B %d, %Y') }}</p>
+                    
+                    {% if event.updated_at != event.created_at %}
+                        <small class="text-muted d-block mb-1">Last Updated</small>
+                        <p class="mb-3">{{ event.updated_at.strftime('%B %d, %Y') }}</p>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('main.browse_events') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Events
+                        </a>
+                        <a href="{{ url_for('main.calendar') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-calendar me-1"></i>View Calendar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function registerForEvent(eventId) {
+    fetch(`/events/${eventId}/register`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Successfully registered for event!');
+            location.reload();
+        } else {
+            alert('Registration failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during registration');
+    });
+}
+
+function unregisterFromEvent(eventId) {
+    if (confirm('Are you sure you want to unregister from this event?')) {
+        fetch(`/events/${eventId}/unregister`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Successfully unregistered from event!');
+                location.reload();
+            } else {
+                alert('Unregistration failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred during unregistration');
+        });
+    }
+}
+</script>
+{% endblock %}

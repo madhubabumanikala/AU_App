@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - AU Event System{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>
+                    <i class="fas fa-tachometer-alt text-primary me-2"></i>Admin Dashboard
+                </h2>
+                <div>
+                    <a href="{{ url_for('admin.create_event') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Create Event
+                    </a>
+                    <a href="{{ url_for('admin.register') }}" class="btn btn-secondary ms-2">
+                        <i class="fas fa-user-plus me-1"></i>Add Admin
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-0">{{ total_events }}</h3>
+                            <p class="mb-0">Total Events</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-0">{{ active_events }}</h3>
+                            <p class="mb-0">Active Events</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-0">{{ total_students }}</h3>
+                            <p class="mb-0">Total Students</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h3 class="mb-0">{{ total_registrations }}</h3>
+                            <p class="mb-0">Total Registrations</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Events -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Recent Events
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_events %}
+                        <div class="list-group list-group-flush">
+                            {% for event in recent_events %}
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ event.title }}</h6>
+                                        <small>{{ event.created_at.strftime('%d %b %Y') }}</small>
+                                    </div>
+                                    <p class="mb-1 small text-muted">{{ event.department }} - {{ event.category }}</p>
+                                    <p class="mb-1 small">{{ event.registered_count }} registered</p>
+                                    <div class="mt-2">
+                                        <a href="{{ url_for('admin.event_details', event_id=event.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                        <a href="{{ url_for('admin.edit_event', event_id=event.id) }}" class="btn btn-sm btn-outline-secondary ms-1">Edit</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No events created yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Upcoming Events
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_events %}
+                        <div class="list-group list-group-flush">
+                            {% for event in upcoming_events %}
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ event.title }}</h6>
+                                        <small>{{ event.date.strftime('%d %b %Y') }}</small>
+                                    </div>
+                                    <p class="mb-1 small text-muted">{{ event.department }} - {{ event.category }}</p>
+                                    <p class="mb-1 small">{{ event.registered_count }} registered</p>
+                                    <div class="mt-2">
+                                        <a href="{{ url_for('admin.event_details', event_id=event.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                        <a href="{{ url_for('admin.attendance', event_id=event.id) }}" class="btn btn-sm btn-outline-success ms-1">Attendance</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-plus text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No upcoming events</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Registrations -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Recent Registrations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_registrations %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Event</th>
+                                        <th>Registration Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for registration in recent_registrations %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ registration.student.full_name }}</strong><br>
+                                                <small class="text-muted">{{ registration.student.student_id }}</small>
+                                            </td>
+                                            <td>{{ registration.event.title }}</td>
+                                            <td>{{ registration.registration_date.strftime('%d %b %Y %H:%M') }}</td>
+                                            <td>
+                                                {% if registration.attendance_status %}
+                                                    <span class="badge bg-success">Attended</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Registered</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('admin.student_details', student_id=registration.student.id) }}" class="btn btn-sm btn-outline-primary">View Student</a>
+                                                <a href="{{ url_for('admin.event_details', event_id=registration.event.id) }}" class="btn btn-sm btn-outline-secondary ms-1">View Event</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-user-times text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No registrations yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

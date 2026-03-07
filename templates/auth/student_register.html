@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Student Registration - AU Event System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg">
+                <div class="card-header text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Student Registration
+                    </h4>
+                    <small class="text-muted">Join the AU Event Information System</small>
+                </div>
+                <div class="card-body">
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Student ID and Basic Info -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.student_id.label(class="form-label") }}
+                                {{ form.student_id(class="form-control" + (" is-invalid" if form.student_id.errors else ""), placeholder="AU20240001CS001") }}
+                                {% if form.student_id.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.student_id.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Format: AU + 8 digits + 2 letters + 3 digits</small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.email.label(class="form-label") }}
+                                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="student@andhrauniversity.edu.in") }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.first_name.label(class="form-label") }}
+                                {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), placeholder="First Name") }}
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.first_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.last_name.label(class="form-label") }}
+                                {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), placeholder="Last Name") }}
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.last_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Academic Info -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.department.label(class="form-label") }}
+                                {{ form.department(class="form-select" + (" is-invalid" if form.department.errors else "")) }}
+                                {% if form.department.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.department.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-3 mb-3">
+                                {{ form.year.label(class="form-label") }}
+                                {{ form.year(class="form-control" + (" is-invalid" if form.year.errors else ""), placeholder="1", min="1", max="5") }}
+                                {% if form.year.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.year.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-3 mb-3">
+                                {{ form.phone_number.label(class="form-label") }}
+                                {{ form.phone_number(class="form-control" + (" is-invalid" if form.phone_number.errors else ""), placeholder="+91XXXXXXXXXX") }}
+                                {% if form.phone_number.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.phone_number.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Password Fields -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.password.label(class="form-label") }}
+                                <div class="input-group">
+                                    {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter password", id="password") }}
+                                    <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                {% if form.password.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.password.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Minimum 6 characters</small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.confirm_password.label(class="form-label") }}
+                                <div class="input-group">
+                                    {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Confirm password", id="confirm_password") }}
+                                    <button class="btn btn-outline-secondary" type="button" id="toggle-confirm-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                {% if form.confirm_password.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.confirm_password.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Terms and Submit -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a> and <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Login Link -->
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Already have an account?</p>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login Here
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Account Registration</h6>
+                <p>You must provide accurate and complete information during registration. Your student ID will be verified.</p>
+                
+                <h6>2. Acceptable Use</h6>
+                <p>You agree to use the platform only for legitimate academic and event-related purposes.</p>
+                
+                <h6>3. Privacy</h6>
+                <p>Your personal information will be protected according to our privacy policy.</p>
+                
+                <h6>4. Event Registration</h6>
+                <p>You must register for events with genuine intent to attend. No-show registrations may affect future access.</p>
+                
+                <h6>5. Content</h6>
+                <p>All content posted must be appropriate and relevant to university events.</p>
+                
+                <h6>6. Account Security</h6>
+                <p>You are responsible for maintaining the confidentiality of your account credentials.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Privacy Policy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Information We Collect</h6>
+                <ul>
+                    <li>Personal information: Name, email, student ID, department</li>
+                    <li>Academic information: Year of study, department</li>
+                    <li>Event participation data</li>
+                    <li>Usage analytics and system logs</li>
+                </ul>
+                
+                <h6>How We Use Your Information</h6>
+                <ul>
+                    <li>To provide event information and registration services</li>
+                    <li>To send notifications about relevant events</li>
+                    <li>To maintain system security and prevent abuse</li>
+                    <li>To improve our services</li>
+                </ul>
+                
+                <h6>Data Protection</h6>
+                <p>We implement appropriate security measures to protect your personal information.</p>
+                
+                <h6>Your Rights</h6>
+                <p>You have the right to access, update, or delete your personal information.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('password');
+    const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        const icon = this.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+
+    toggleConfirmPassword.addEventListener('click', function() {
+        const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPasswordInput.setAttribute('type', type);
+        
+        const icon = this.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+
+    // Password strength indicator
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        
+        if (password.length >= 6) strength++;
+        if (password.length >= 10) strength++;
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+        let strengthText = '';
+        let strengthClass = '';
+        
+        switch(strength) {
+            case 0:
+            case 1:
+                strengthText = 'Weak';
+                strengthClass = 'text-danger';
+                break;
+            case 2:
+            case 3:
+                strengthText = 'Medium';
+                strengthClass = 'text-warning';
+                break;
+            case 4:
+            case 5:
+                strengthText = 'Strong';
+                strengthClass = 'text-success';
+                break;
+        }
+
+        let strengthIndicator = document.getElementById('password-strength');
+        if (!strengthIndicator) {
+            strengthIndicator = document.createElement('small');
+            strengthIndicator.id = 'password-strength';
+            strengthIndicator.className = 'form-text';
+            passwordInput.parentNode.parentNode.appendChild(strengthIndicator);
+        }
+        
+        strengthIndicator.textContent = 'Password strength: ' + strengthText;
+        strengthIndicator.className = 'form-text ' + strengthClass;
+    });
+
+    // Real-time password confirmation check
+    confirmPasswordInput.addEventListener('input', function() {
+        const password = passwordInput.value;
+        const confirmPassword = this.value;
+        
+        if (confirmPassword && password !== confirmPassword) {
+            this.setCustomValidity('Passwords do not match');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+
+    // Auto-focus on student ID field
+    document.querySelector('input[name="student_id"]').focus();
+    
+    // Format student ID as user types
+    const studentIdInput = document.querySelector('input[name="student_id"]');
+    studentIdInput.addEventListener('input', function() {
+        let value = this.value.toUpperCase();
+        if (!value.startsWith('AU')) {
+            value = 'AU' + value.replace(/^AU/i, '');
+        }
+        this.value = value;
+    });
+});
+</script>
+{% endblock %}

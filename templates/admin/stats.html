@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics - AU Event System{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-chart-bar text-primary me-2"></i>Event Statistics & Analytics
+            </h2>
+        </div>
+    </div>
+
+    <!-- Overview Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h2>{{ total_events }}</h2>
+                    <p class="mb-0">Total Events</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h2>{{ active_events }}</h2>
+                    <p class="mb-0">Active Events</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h2>{{ past_events }}</h2>
+                    <p class="mb-0">Past Events</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h2>{{ total_registrations }}</h2>
+                    <p class="mb-0">Total Registrations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Department-wise Events -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>Events by Department
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if dept_events %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Department</th>
+                                        <th class="text-center">Events</th>
+                                        <th class="text-center">Registrations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for dept_data in dept_events %}
+                                        <tr>
+                                            <td>{{ dept_data[0] }}</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary">{{ dept_data[1] }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success">{{ dept_data[2] }}</span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-pie text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No department data available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Category-wise Events -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tags me-2"></i>Events by Category
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if category_events %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th class="text-center">Events</th>
+                                        <th class="text-center">Registrations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cat_data in category_events %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ cat_data[0].title() }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary">{{ cat_data[1] }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success">{{ cat_data[2] }}</span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-pie text-muted fa-3x mb-3"></i>
+                            <p class="text-muted">No category data available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Events -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy me-2"></i>Most Popular Events
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if popular_events %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Event</th>
+                                        <th>Department</th>
+                                        <th>Category</th>
+                                        <th>Date</th>
+                                        <th class="text-center">Registrations</th>
+                                        <th class="text-center">Attendance Rate</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for event_data in popular_events %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ event_data[0].title }}</strong><br>
+                                                <small class="text-muted">{{ event_data[0].location }}</small>
+                                            </td>
+                                            <td>{{ event_data[0].department }}</td>
+                                            <td>
+                                                <span class="badge bg-secondary">{{ event_data[0].category.title() }}</span>
+                                            </td>
+                                            <td>{{ event_data[0].date.strftime('%d %b %Y') }}</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary fs-6">{{ event_data[1] }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                {% set attended = event_data[0].registrations.filter_by(attendance_status=True).count() %}
+                                                {% if event_data[1] > 0 %}
+                                                    {% set rate = (attended / event_data[1]) * 100 %}
+                                                    <span class="badge bg-{% if rate >= 80 %}success{% elif rate >= 60 %}warning{% else %}danger{% endif %}">
+                                                        {{ "%.0f"|format(rate) }}%
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('admin.event_details', event_id=event_data[0].id) }}" 
+                                                   class="btn btn-sm btn-outline-primary">View</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times text-muted fa-3x mb-3"></i>
+                            <h5 class="text-muted">No events data available</h5>
+                            <p class="text-muted">Create some events to see statistics</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
