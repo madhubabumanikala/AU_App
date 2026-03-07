@@ -183,20 +183,26 @@ def migrate_existing_database():
             
             # Add missing columns if needed
             required_columns = [
-                'is_university_post', 'is_announcement', 'is_pinned',
+                'media_thumbnail', 'updated_at', 'is_pinned',
+                'is_university_post', 'is_announcement', 
                 'likes_count', 'comments_count', 'shares_count',
                 'visibility', 'views_count'
             ]
             
             for column in required_columns:
                 if column not in columns:
-                    if 'count' in column:
+                    if column == 'media_thumbnail':
+                        conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} VARCHAR(255)"))
+                    elif column == 'updated_at':
+                        conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} TIMESTAMP DEFAULT CURRENT_TIMESTAMP"))
+                    elif 'count' in column:
                         conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} INTEGER DEFAULT 0"))
                     elif column == 'visibility':
                         conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} VARCHAR(20) DEFAULT 'public'"))
                     else:
                         conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} BOOLEAN DEFAULT 0"))
                     
+                    print(f"✅ Added missing column: {column}")
                     logger.info(f"Added missing column: {column}")
             
             conn.commit()
