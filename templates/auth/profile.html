@@ -117,7 +117,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    {% set recent_registrations = current_user.event_registrations.order_by(current_user.event_registrations.registration_date.desc()).limit(5).all() %}
+                    {% set recent_registrations = current_user.event_registrations.order_by('-registration_date').limit(5).all() %}
                     {% if recent_registrations %}
                         <div class="list-group list-group-flush">
                             {% for registration in recent_registrations %}
@@ -149,7 +149,7 @@
                         <div class="text-center py-4">
                             <i class="fas fa-calendar-times text-muted fa-3x mb-3"></i>
                             <p class="text-muted">No event registrations yet</p>
-                            <a href="{{ url_for('events.browse') }}" class="btn btn-primary">
+                            <a href="{{ url_for('main.events') }}" class="btn btn-primary">
                                 <i class="fas fa-search me-1"></i>Browse Events
                             </a>
                         </div>
@@ -172,7 +172,7 @@
                             </a>
                         </div>
                         <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('events.browse') }}" class="btn btn-outline-success w-100">
+                            <a href="{{ url_for('main.events') }}" class="btn btn-outline-success w-100">
                                 <i class="fas fa-calendar-plus me-1"></i>Browse Events
                             </a>
                         </div>

@@ -107,9 +107,31 @@ def logout():
 @auth_bp.route('/profile')
 @login_required
 def profile():
-    return render_template('auth/profile.html')
+    from sqlalchemy import text
+    return render_template('auth/profile.html', text=text)
 
-@auth_bp.route('/edit_profile')
+@auth_bp.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
-    return render_template('auth/edit_profile.html')
+    from utils.forms import EditProfileForm
+    
+    form = EditProfileForm()
+    
+    if form.validate_on_submit():
+        # Update user profile
+        current_user.first_name = form.first_name.data
+        current_user.last_name = form.last_name.data
+        current_user.email = form.email.data
+        current_user.phone_number = form.phone_number.data
+        
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('auth.profile'))
+    
+    # Pre-populate form with current user data
+    form.first_name.data = current_user.first_name
+    form.last_name.data = current_user.last_name
+    form.email.data = current_user.email
+    form.phone_number.data = current_user.phone_number
+    
+    return render_template('auth/edit_profile.html', form=form)
