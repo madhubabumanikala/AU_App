@@ -22,9 +22,11 @@ try:
     print("🛑 Press Ctrl+C to stop")
     print("-" * 50)
     
-    # Import and run Flask app directly
+    # Import and run Flask app directly (no subprocess, runs in current terminal)
     from app import app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    print("✅ Flask app imported successfully")
+    print("🌐 Starting server on http://localhost:5000...")
+    app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)
     
 except ImportError as e:
     print(f"❌ Import Error: {e}")
@@ -41,4 +43,3 @@ except Exception as e:
     print("python app.py")
 
 print("\n" + "=" * 50)
-input("Press Enter to close...")
