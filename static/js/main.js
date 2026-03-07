@@ -283,7 +283,7 @@ $(document).ready(function() {
         var socket = io();
         
         socket.on('connect', function() {
-            console.log('Connected to server');
+            // WebSocket connected successfully
         });
         
         socket.on('notification', function(data) {
