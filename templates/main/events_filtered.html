@@ -60,10 +60,10 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-filter me-1"></i>Filter Events
                             </button>
-                            <a href="{{ url_for('main.browse_events') }}" class="btn btn-secondary ms-2">
+                            <a href="{{ url_for('main.events') }}" class="btn btn-secondary ms-2">
                                 <i class="fas fa-times me-1"></i>Clear Filters
                             </a>
-                            <a href="{{ url_for('main.calendar') }}" class="btn btn-outline-info ms-2">
+                            <a href="{{ url_for('main.calendar_view') }}" class="btn btn-outline-info ms-2">
                                 <i class="fas fa-calendar me-1"></i>Calendar View
                             </a>
                         </div>
@@ -181,7 +181,7 @@
                     <i class="fas fa-calendar-times text-muted fa-4x mb-4"></i>
                     <h4 class="text-muted">No events found</h4>
                     <p class="text-muted">No events match your current filters. Try adjusting your search criteria.</p>
-                    <a href="{{ url_for('main.browse_events') }}" class="btn btn-primary">
+                    <a href="{{ url_for('main.events') }}" class="btn btn-primary">
                         <i class="fas fa-refresh me-1"></i>View All Events
                     </a>
                 </div>

@@ -12,12 +12,12 @@
                     <i class="fas fa-calendar text-primary me-2"></i>Event Calendar
                 </h2>
                 <div>
-                    <a href="{{ url_for('main.calendar', year=year, month=month-1) if month > 1 else url_for('main.calendar', year=year-1, month=12) }}" 
+                    <a href="{{ url_for('main.calendar_view', year=year, month=month-1) if month > 1 else url_for('main.calendar_view', year=year-1, month=12) }}" 
                        class="btn btn-outline-primary">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                     <span class="mx-3 fs-5">{{ month_name }} {{ year }}</span>
-                    <a href="{{ url_for('main.calendar', year=year, month=month+1) if month < 12 else url_for('main.calendar', year=year+1, month=1) }}" 
+                    <a href="{{ url_for('main.calendar_view', year=year, month=month+1) if month < 12 else url_for('main.calendar_view', year=year+1, month=1) }}" 
                        class="btn btn-outline-primary">
                         <i class="fas fa-chevron-right"></i>
                     </a>
@@ -164,7 +164,7 @@
                         
                         {% if upcoming_events|length > 5 %}
                             <div class="text-center">
-                                <a href="{{ url_for('main.browse_events') }}" class="btn btn-outline-primary btn-sm">
+                                <a href="{{ url_for('main.events') }}" class="btn btn-outline-primary btn-sm">
                                     <i class="fas fa-eye me-1"></i>View All Events
                                 </a>
                             </div>
@@ -211,7 +211,7 @@
     <div class="row mt-4">
         <div class="col-12 text-center">
             <div class="btn-group" role="group">
-                <a href="{{ url_for('main.browse_events') }}" class="btn btn-outline-primary">
+                <a href="{{ url_for('main.events') }}" class="btn btn-outline-primary">
                     <i class="fas fa-list me-1"></i>List View
                 </a>
                 <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
