@@ -181,29 +181,41 @@ def migrate_existing_database():
             result = conn.execute(text("PRAGMA table_info(posts)")).fetchall()
             columns = [row[1] for row in result] if result else []
             
-            # Add missing columns if needed
-            required_columns = [
-                'media_thumbnail', 'updated_at', 'is_pinned',
-                'is_university_post', 'is_announcement', 
-                'likes_count', 'comments_count', 'shares_count',
-                'visibility', 'views_count'
-            ]
+            # Complete list of ALL Post model columns with proper types
+            required_columns = {
+                'content': 'TEXT NOT NULL',
+                'media_type': 'VARCHAR(20)',
+                'media_url': 'VARCHAR(255)',
+                'media_thumbnail': 'VARCHAR(255)',
+                'author_id': 'INTEGER NOT NULL',
+                'author_type': 'VARCHAR(20) NOT NULL DEFAULT "student"',
+                'event_id': 'INTEGER',
+                'created_at': 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'updated_at': 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+                'is_active': 'BOOLEAN DEFAULT 1',
+                'is_pinned': 'BOOLEAN DEFAULT 0',
+                'is_university_post': 'BOOLEAN DEFAULT 0',
+                'is_announcement': 'BOOLEAN DEFAULT 0',
+                'visibility': 'VARCHAR(20) DEFAULT "public"',
+                'likes_count': 'INTEGER DEFAULT 0',
+                'comments_count': 'INTEGER DEFAULT 0',
+                'shares_count': 'INTEGER DEFAULT 0',
+                'views_count': 'INTEGER DEFAULT 0'
+            }
             
-            for column in required_columns:
-                if column not in columns:
-                    if column == 'media_thumbnail':
-                        conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} VARCHAR(255)"))
-                    elif column == 'updated_at':
-                        conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} TIMESTAMP DEFAULT CURRENT_TIMESTAMP"))
-                    elif 'count' in column:
-                        conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} INTEGER DEFAULT 0"))
-                    elif column == 'visibility':
-                        conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} VARCHAR(20) DEFAULT 'public'"))
-                    else:
-                        conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} BOOLEAN DEFAULT 0"))
-                    
-                    print(f"✅ Added missing column: {column}")
-                    logger.info(f"Added missing column: {column}")
+            for column_name, column_def in required_columns.items():
+                if column_name not in columns:
+                    conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column_name} {column_def}"))
+                    print(f"✅ Added missing column: {column_name} ({column_def})")
+                    logger.info(f"Added missing column: {column_name}")
+                else:
+                    print(f"✓ Column exists: {column_name}")
+            
+            # Also add foreign key constraint if missing
+            try:
+                conn.execute(text("CREATE INDEX IF NOT EXISTS idx_posts_event_id ON posts(event_id)"))
+            except Exception as e:
+                logger.debug(f"Index creation warning: {e}")
             
             conn.commit()
         
