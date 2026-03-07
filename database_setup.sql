@@ -107,6 +107,34 @@ CREATE TABLE IF NOT EXISTS notifications (
     INDEX idx_created_at (created_at)
 );
 
+-- Posts table (Social Media)
+CREATE TABLE IF NOT EXISTS posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    content TEXT NOT NULL,
+    media_type VARCHAR(20),
+    media_url VARCHAR(255),
+    media_thumbnail VARCHAR(255),
+    author_id INT NOT NULL,
+    author_type VARCHAR(20) NOT NULL DEFAULT 'student',
+    event_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
+    is_pinned BOOLEAN DEFAULT FALSE,
+    is_university_post BOOLEAN DEFAULT FALSE,
+    is_announcement BOOLEAN DEFAULT FALSE,
+    visibility VARCHAR(20) DEFAULT 'public',
+    likes_count INT DEFAULT 0,
+    comments_count INT DEFAULT 0,
+    shares_count INT DEFAULT 0,
+    views_count INT DEFAULT 0,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE SET NULL,
+    INDEX idx_author (author_id, author_type),
+    INDEX idx_created_at (created_at),
+    INDEX idx_is_active (is_active),
+    INDEX idx_visibility (visibility)
+);
+
 -- Insert default admin user (password: admin123)
 INSERT INTO admins (username, first_name, last_name, email, password_hash, role, department) 
 VALUES ('admin', 'System', 'Administrator', 'admin@au-events.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj3QJflHQrxG', 'super_admin', 'Administration')
