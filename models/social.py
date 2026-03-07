@@ -28,6 +28,8 @@ class Post(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     is_pinned = db.Column(db.Boolean, default=False)
+    is_university_post = db.Column(db.Boolean, default=False)  # Admin-only university posts
+    is_announcement = db.Column(db.Boolean, default=False)     # Official announcements
     
     # Privacy settings
     visibility = db.Column(db.String(20), default='public')  # public, department, private
@@ -76,11 +78,30 @@ class Post(db.Model):
         """Check if user can edit this post"""
         if not user or not user.is_authenticated:
             return False
-        return (user.id == self.author_id and user.__class__.__name__.lower() == self.author_type) or user.is_admin
+        # Author can always edit their own posts
+        if (user.id == self.author_id and 
+            user.__class__.__name__.lower() == self.author_type):
+            return True
+        # Admins can edit any post for moderation
+        return user.__class__.__name__.lower() == 'admin'
     
     def can_delete(self, user):
         """Check if user can delete this post"""
-        return self.can_edit(user)
+        if not user or not user.is_authenticated:
+            return False
+        # Author can delete their own posts
+        if (user.id == self.author_id and 
+            user.__class__.__name__.lower() == self.author_type):
+            return True
+        # Admins can delete any post for moderation
+        return user.__class__.__name__.lower() == 'admin'
+    
+    def can_pin(self, user):
+        """Check if user can pin/unpin this post"""
+        if not user or not user.is_authenticated:
+            return False
+        # Only admins can pin posts
+        return user.__class__.__name__.lower() == 'admin'
     
     def get_media_display_url(self):
         """Get URL for displaying media"""

@@ -86,6 +86,15 @@ def create_post():
                     return redirect(url_for('social.create_post'))
         
         try:
+            # Check for admin-only features
+            is_university_post = request.form.get('is_university_post') == 'on'
+            is_announcement = request.form.get('is_announcement') == 'on'
+            
+            # Only admins can create university posts and announcements
+            if (is_university_post or is_announcement) and current_user.__class__.__name__.lower() != 'admin':
+                is_university_post = False
+                is_announcement = False
+            
             # Create post
             post = Post(
                 content=content,
@@ -95,7 +104,9 @@ def create_post():
                 author_id=current_user.id,
                 author_type=current_user.__class__.__name__.lower(),
                 event_id=event_id if event_id else None,
-                visibility=visibility
+                visibility=visibility,
+                is_university_post=is_university_post,
+                is_announcement=is_announcement
             )
             
             db.session.add(post)
@@ -151,6 +162,70 @@ def post_details(post_id):
     return render_template(mobile_template('social/post_details.html'), 
                          post=post, 
                          comments=comments)
+
+@social_bp.route('/admin/post/<int:post_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_post(post_id):
+    """Admin-only: Delete any post"""
+    if current_user.__class__.__name__.lower() != 'admin':
+        flash('Permission denied', 'error')
+        return redirect(url_for('social.social_feed'))
+    
+    post = Post.query.get_or_404(post_id)
+    
+    try:
+        db.session.delete(post)
+        db.session.commit()
+        flash('Post deleted successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error deleting post', 'error')
+    
+    return redirect(url_for('social.social_feed'))
+
+@social_bp.route('/admin/post/<int:post_id>/pin', methods=['POST'])
+@login_required
+def admin_pin_post(post_id):
+    """Admin-only: Pin/unpin post"""
+    if current_user.__class__.__name__.lower() != 'admin':
+        return jsonify({'success': False, 'message': 'Permission denied'})
+    
+    post = Post.query.get_or_404(post_id)
+    
+    try:
+        post.is_pinned = not post.is_pinned
+        db.session.commit()
+        
+        status = 'pinned' if post.is_pinned else 'unpinned'
+        return jsonify({
+            'success': True, 
+            'message': f'Post {status} successfully',
+            'is_pinned': post.is_pinned
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'Error updating post'})
+
+@social_bp.route('/admin/comment/<int:comment_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_comment(comment_id):
+    """Admin-only: Delete any comment"""
+    if current_user.__class__.__name__.lower() != 'admin':
+        return jsonify({'success': False, 'message': 'Permission denied'})
+    
+    comment = PostComment.query.get_or_404(comment_id)
+    
+    try:
+        comment.is_active = False  # Soft delete
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Comment removed successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'Error removing comment'})
 
 @social_bp.route('/api/post/<int:post_id>/like', methods=['POST'])
 @login_required

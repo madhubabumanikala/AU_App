@@ -238,6 +238,34 @@
                         <option value="private">Private</option>
                     </select>
                 </div>
+                
+                <!-- Admin-only Options -->
+                {% if current_user.__class__.__name__ == 'Admin' %}
+                <div class="admin-options mt-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_university_post" id="universityPost">
+                                <label class="form-check-label" for="universityPost">
+                                    <i class="fas fa-university text-info me-1"></i>
+                                    <strong>University Post</strong>
+                                    <small class="d-block text-muted">Official university-wide announcement</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_announcement" id="announcement">
+                                <label class="form-check-label" for="announcement">
+                                    <i class="fas fa-bullhorn text-warning me-1"></i>
+                                    <strong>Official Announcement</strong>
+                                    <small class="d-block text-muted">Important system-wide notice</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Submit Section -->

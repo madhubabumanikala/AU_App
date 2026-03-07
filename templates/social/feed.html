@@ -347,6 +347,40 @@
         font-size: 12px;
         font-weight: 600;
     }
+    
+    .university-post {
+        border-left: 5px solid #17a2b8;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+    }
+    
+    .announcement-post {
+        border-left: 5px solid #ffc107;
+        background: linear-gradient(135deg, #fff3cd 0%, #fef9e7 100%);
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+    }
+    
+    .post-badges {
+        padding: 15px 20px 0 20px;
+    }
+    
+    .post-badges .badge {
+        margin-right: 10px;
+        font-size: 0.75rem;
+        padding: 6px 12px;
+    }
+    
+    .admin-controls {
+        border-top: 1px solid #e9ecef;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+    
+    .dropdown-header {
+        color: #6c757d !important;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
 </style>
 {% endblock %}
 
@@ -382,7 +416,23 @@
 
         <!-- Posts Feed -->
         {% for post in posts.items %}
-        <div class="post-card {{ 'pinned-post' if post.is_pinned else '' }}">
+        <div class="post-card {{ 'pinned-post' if post.is_pinned else '' }} {{ 'university-post' if post.is_university_post else '' }} {{ 'announcement-post' if post.is_announcement else '' }}">
+            <!-- Post Type Badges -->
+            {% if post.is_university_post or post.is_announcement %}
+            <div class="post-badges">
+                {% if post.is_university_post %}
+                <span class="badge bg-info">
+                    <i class="fas fa-university me-1"></i>University Post
+                </span>
+                {% endif %}
+                {% if post.is_announcement %}
+                <span class="badge bg-warning text-dark">
+                    <i class="fas fa-bullhorn me-1"></i>Official Announcement
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+            
             <!-- Post Header -->
             <div class="post-header">
                 <div class="author-info">
@@ -402,18 +452,41 @@
                 </div>
                 <div class="post-meta">
                     {{ post.created_at.strftime('%d %b %Y, %I:%M %p') }}
-                    {% if post.can_edit(current_user) %}
+                    {% if post.can_edit(current_user) or current_user.__class__.__name__ == 'Admin' %}
                     <div class="dropdown d-inline ms-2">
                         <button class="btn btn-link btn-sm p-0" data-bs-toggle="dropdown">
                             <i class="fas fa-ellipsis-h"></i>
                         </button>
                         <ul class="dropdown-menu">
+                            {% if post.can_edit(current_user) %}
                             <li><a class="dropdown-item" href="{{ url_for('social.edit_post', post_id=post.id) }}">
                                 <i class="fas fa-edit me-2"></i>Edit
                             </a></li>
-                            <li><a class="dropdown-item text-danger" href="#" onclick="deletePost({{ post.id }})">
-                                <i class="fas fa-trash me-2"></i>Delete
+                            {% endif %}
+                            
+                            {% if current_user.__class__.__name__ == 'Admin' %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Admin Controls</h6></li>
+                            <li><a class="dropdown-item" href="#" onclick="togglePin({{ post.id }})">
+                                <i class="fas fa-thumbtack me-2"></i>{{ 'Unpin' if post.is_pinned else 'Pin Post' }}
                             </a></li>
+                            {% if post.is_university_post %}
+                            <li><span class="dropdown-item-text text-info">
+                                <i class="fas fa-university me-2"></i>University Post
+                            </span></li>
+                            {% endif %}
+                            {% if post.is_announcement %}
+                            <li><span class="dropdown-item-text text-warning">
+                                <i class="fas fa-bullhorn me-2"></i>Official Announcement
+                            </span></li>
+                            {% endif %}
+                            {% endif %}
+                            
+                            {% if post.can_delete(current_user) %}
+                            <li><a class="dropdown-item text-danger" href="#" onclick="deletePost({{ post.id }})">
+                                <i class="fas fa-trash me-2"></i>Delete Post
+                            </a></li>
+                            {% endif %}
                         </ul>
                     </div>
                     {% endif %}
@@ -698,11 +771,40 @@
         });
     }
     
-    // Delete post
+    // Admin: Toggle pin post
+    function togglePin(postId) {
+        fetch(`/social/admin/post/${postId}/pin`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload(); // Reload to show pin status change
+            } else {
+                alert(data.message || 'Error updating post');
+            }
+        })
+        .catch(error => {
+            console.error('Pin error:', error);
+            alert('Network error');
+        });
+    }
+    
+    // Delete post (works for both users and admins)
     function deletePost(postId) {
         if (!confirm('Are you sure you want to delete this post?')) return;
         
-        fetch(`/social/post/${postId}/delete`, {
+        // Try admin delete route first, then fallback to regular route
+        const deleteUrl = '{{ current_user.__class__.__name__ }}' === 'Admin' 
+            ? `/social/admin/post/${postId}/delete`
+            : `/social/post/${postId}/delete`;
+        
+        fetch(deleteUrl, {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
