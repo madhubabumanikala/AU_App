@@ -274,3 +274,133 @@ def debug_auth():
         <h2>❌ Debug Error</h2>
         <p>{str(e)}</p>
         """
+
+@debug_bp.route('/add-dummy-admins')
+def add_dummy_admins():
+    """Add multiple dummy admin accounts"""
+    from extensions import db
+    from models.user import Admin
+    
+    try:
+        db.create_all()
+        
+        # Define dummy admin accounts
+        dummy_admins = [
+            {
+                'email': 'admin@au.edu.in',
+                'username': 'admin',
+                'first_name': 'System',
+                'last_name': 'Administrator',
+                'password': 'admin123'
+            },
+            {
+                'email': 'dean@au.edu.in', 
+                'username': 'dean',
+                'first_name': 'Academic',
+                'last_name': 'Dean',
+                'password': 'dean123'
+            },
+            {
+                'email': 'registrar@au.edu.in',
+                'username': 'registrar', 
+                'first_name': 'University',
+                'last_name': 'Registrar',
+                'password': 'registrar123'
+            }
+        ]
+        
+        created_admins = []
+        existing_admins = []
+        
+        for admin_data in dummy_admins:
+            # Check if admin already exists
+            existing = Admin.query.filter_by(email=admin_data['email']).first()
+            if existing:
+                existing_admins.append(admin_data['email'])
+                continue
+            
+            # Create new admin
+            admin = Admin(
+                email=admin_data['email'],
+                username=admin_data['username'],
+                first_name=admin_data['first_name'],
+                last_name=admin_data['last_name'],
+                role='admin',
+                is_active=True
+            )
+            admin.set_password(admin_data['password'])
+            
+            db.session.add(admin)
+            created_admins.append(admin_data)
+        
+        # Commit all changes
+        db.session.commit()
+        
+        # Generate response
+        response = f"""
+        <h2>🎉 Dummy Admin Credentials Added!</h2>
+        
+        <h3>✅ Created Admins ({len(created_admins)}):</h3>
+        <table border="1" style="border-collapse: collapse; width: 100%;">
+            <tr style="background: #f8f9fa;">
+                <th style="padding: 8px;">Email</th>
+                <th style="padding: 8px;">Password</th>
+                <th style="padding: 8px;">Role</th>
+            </tr>
+        """
+        
+        for admin_data in created_admins:
+            response += f"""
+            <tr>
+                <td style="padding: 8px;">{admin_data['email']}</td>
+                <td style="padding: 8px; font-family: monospace;">{admin_data['password']}</td>
+                <td style="padding: 8px;">{admin_data['first_name']} {admin_data['last_name']}</td>
+            </tr>
+            """
+        
+        response += "</table>"
+        
+        if existing_admins:
+            response += f"""
+            <h3>⚠️ Already Existing ({len(existing_admins)}):</h3>
+            <ul>
+            """
+            for email in existing_admins:
+                response += f"<li>{email}</li>"
+            response += "</ul>"
+        
+        # Show all available credentials
+        all_admins = Admin.query.all()
+        response += f"""
+        <h3>🔑 All Available Admin Login Credentials:</h3>
+        <div style="background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 10px 0;">
+            <p><strong>admin@au.edu.in</strong> / admin123</p>
+            <p><strong>dean@au.edu.in</strong> / dean123</p>
+            <p><strong>registrar@au.edu.in</strong> / registrar123</p>
+        </div>
+        
+        <p><strong>How to Login:</strong></p>
+        <ol>
+            <li>Go to <a href="/auth/login">Login Page</a></li>
+            <li>Enter any email/password from above</li>
+            <li>Select <strong>"Admin"</strong> as user type</li>
+            <li>Click Login</li>
+        </ol>
+        
+        <p style="background: #fff3cd; padding: 10px; border-radius: 5px;">
+            💡 <strong>Note:</strong> Admin users will see extra features like post deletion, pinning, 
+            university announcements, and moderation tools.
+        </p>
+        
+        <p><a href="/auth/login" style="background: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin-right: 10px;">🔐 Login as Admin</a></p>
+        """
+        
+        return response
+        
+    except Exception as e:
+        db.session.rollback()
+        return f"""
+        <h2>❌ Error Adding Dummy Admins</h2>
+        <p><strong>Error:</strong> {str(e)}</p>
+        <p>Check your database configuration and try again.</p>
+        """
