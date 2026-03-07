@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Event Calendar - AU Event System{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>
+                    <i class="fas fa-calendar text-primary me-2"></i>Event Calendar
+                </h2>
+                <div>
+                    <a href="{{ url_for('main.calendar', year=year, month=month-1) if month > 1 else url_for('main.calendar', year=year-1, month=12) }}" 
+                       class="btn btn-outline-primary">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <span class="mx-3 fs-5">{{ month_name }} {{ year }}</span>
+                    <a href="{{ url_for('main.calendar', year=year, month=month+1) if month < 12 else url_for('main.calendar', year=year+1, month=1) }}" 
+                       class="btn btn-outline-primary">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0" style="table-layout: fixed;">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th class="text-center py-3">Sunday</th>
+                                    <th class="text-center py-3">Monday</th>
+                                    <th class="text-center py-3">Tuesday</th>
+                                    <th class="text-center py-3">Wednesday</th>
+                                    <th class="text-center py-3">Thursday</th>
+                                    <th class="text-center py-3">Friday</th>
+                                    <th class="text-center py-3">Saturday</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for week in calendar_data %}
+                                    <tr style="height: 120px;">
+                                        {% for day in week %}
+                                            <td class="p-2 align-top {% if day == 0 %}table-light{% endif %}">
+                                                {% if day != 0 %}
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span class="fw-bold">{{ day }}</span>
+                                                        {% set day_events = events_by_date.get(day, []) if events_by_date else [] %}
+                                                        {% if day_events %}
+                                                            <span class="badge bg-primary rounded-pill">{{ day_events|length }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    
+                                                    {% if day_events %}
+                                                        <div class="event-list">
+                                                            {% for event in day_events[:3] %}
+                                                                <div class="small mb-1">
+                                                                    <a href="{{ url_for('main.event_details', event_id=event.id) }}" 
+                                                                       class="text-decoration-none">
+                                                                        <div class="badge bg-{{ 'success' if event.category == 'technical' else 'info' if event.category == 'workshop' else 'warning' if event.category == 'cultural' else 'secondary' }} 
+                                                                                    text-truncate d-block mb-1" 
+                                                                             style="max-width: 100%;" 
+                                                                             title="{{ event.title }}">
+                                                                            {{ event.time.strftime('%H:%M') }} - {{ event.title[:15] }}{% if event.title|length > 15 %}...{% endif %}
+                                                                        </div>
+                                                                    </a>
+                                                                </div>
+                                                            {% endfor %}
+                                                            {% if day_events|length > 3 %}
+                                                                <small class="text-muted">+{{ day_events|length - 3 }} more</small>
+                                                            {% endif %}
+                                                        </div>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <!-- Today's Events -->
+            {% set today_events = todays_events if todays_events else [] %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Today's Events
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if today_events %}
+                        {% for event in today_events %}
+                            <div class="mb-3 pb-2 {% if not loop.last %}border-bottom{% endif %}">
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('main.event_details', event_id=event.id) }}" 
+                                       class="text-decoration-none">{{ event.title }}</a>
+                                </h6>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-clock me-1"></i>{{ event.time.strftime('%H:%M') }}
+                                </small>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
+                                </small>
+                                <span class="badge bg-{{ 'success' if event.category == 'technical' else 'info' if event.category == 'workshop' else 'warning' if event.category == 'cultural' else 'secondary' }} mt-1">
+                                    {{ event.category.title() }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-calendar-day text-muted fa-2x mb-2"></i>
+                            <p class="text-muted mb-0">No events today</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            {% set upcoming_events = upcoming_events if upcoming_events else [] %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-calendar-plus me-2"></i>Upcoming Events
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_events %}
+                        {% for event in upcoming_events[:5] %}
+                            <div class="mb-3 pb-2 {% if not loop.last %}border-bottom{% endif %}">
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('main.event_details', event_id=event.id) }}" 
+                                       class="text-decoration-none">{{ event.title }}</a>
+                                </h6>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-calendar me-1"></i>{{ event.date.strftime('%d %b') }}
+                                    <i class="fas fa-clock ms-2 me-1"></i>{{ event.time.strftime('%H:%M') }}
+                                </small>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
+                                </small>
+                                <div class="mt-1">
+                                    <span class="badge bg-{{ 'success' if event.category == 'technical' else 'info' if event.category == 'workshop' else 'warning' if event.category == 'cultural' else 'secondary' }}">
+                                        {{ event.category.title() }}
+                                    </span>
+                                    <span class="badge bg-light text-dark ms-1">
+                                        {{ event.registered_count }} registered
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        {% if upcoming_events|length > 5 %}
+                            <div class="text-center">
+                                <a href="{{ url_for('main.browse_events') }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View All Events
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-calendar-times text-muted fa-2x mb-2"></i>
+                            <p class="text-muted mb-0">No upcoming events</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Event Categories
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-success me-2">Technical</span>
+                        <small class="text-muted">Tech talks, coding events</small>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-info me-2">Workshop</span>
+                        <small class="text-muted">Hands-on sessions</small>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-warning me-2">Cultural</span>
+                        <small class="text-muted">Arts, music, festivals</small>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-secondary me-2">Other</span>
+                        <small class="text-muted">General events</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('main.browse_events') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-1"></i>List View
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a href="{{ url_for('main.my_events') }}" class="btn btn-outline-success">
+                    <i class="fas fa-user-calendar me-1"></i>My Events
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

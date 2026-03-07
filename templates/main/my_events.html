@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}My Events - AU Event System{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-user-calendar text-primary me-2"></i>My Events
+            </h2>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('main.my_events') }}" 
+                           class="btn {% if not current_status %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            <i class="fas fa-calendar-alt me-1"></i>All Events
+                        </a>
+                        <a href="{{ url_for('main.my_events', status='upcoming') }}" 
+                           class="btn {% if current_status == 'upcoming' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            <i class="fas fa-calendar-plus me-1"></i>Upcoming
+                        </a>
+                        <a href="{{ url_for('main.my_events', status='past') }}" 
+                           class="btn {% if current_status == 'past' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            <i class="fas fa-history me-1"></i>Past Events
+                        </a>
+                        <a href="{{ url_for('main.my_events', status='attended') }}" 
+                           class="btn {% if current_status == 'attended' %}btn-success{% else %}btn-outline-success{% endif %}">
+                            <i class="fas fa-check-circle me-1"></i>Attended
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events List -->
+    <div class="row">
+        <div class="col-12">
+            {% if registrations.items %}
+                <div class="row">
+                    {% for registration in registrations.items %}
+                        {% set event = registration.event %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100 shadow-sm {% if registration.attendance_status %}border-success{% endif %}">
+                                {% if event.poster_image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + event.poster_image) }}" 
+                                         class="card-img-top" style="height: 150px; object-fit: cover;" 
+                                         alt="{{ event.title }}">
+                                {% endif %}
+                                
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ event.title }}</h5>
+                                    <p class="card-text">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
+                                    
+                                    <!-- Event Details -->
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-calendar me-1"></i>{{ event.date.strftime('%A, %B %d, %Y') }}
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-clock me-1"></i>{{ event.time.strftime('%H:%M') }}
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-building me-1"></i>{{ event.department }}
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- Status Badges -->
+                                    <div class="mb-3">
+                                        <span class="badge bg-primary">{{ event.category.title() }}</span>
+                                        
+                                        {% if registration.attendance_status %}
+                                            <span class="badge bg-success ms-1">Attended</span>
+                                        {% elif event.date < today %}
+                                            <span class="badge bg-secondary ms-1">Past Event</span>
+                                        {% else %}
+                                            <span class="badge bg-warning ms-1">Upcoming</span>
+                                        {% endif %}
+                                        
+                                        {% if registration.qr_code_path %}
+                                            <span class="badge bg-info ms-1">QR Available</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Registration Info -->
+                                    <div class="small text-muted mb-3">
+                                        <strong>Registered:</strong> {{ registration.registration_date.strftime('%B %d, %Y at %H:%M') }}
+                                    </div>
+                                    
+                                    <!-- Actions -->
+                                    <div class="mt-auto">
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ url_for('main.event_details', event_id=event.id) }}" 
+                                               class="btn btn-primary btn-sm">
+                                                <i class="fas fa-info-circle me-1"></i>View Details
+                                            </a>
+                                            
+                                            {% if registration.qr_code_path %}
+                                                <a href="{{ url_for('static', filename='uploads/qrcodes/' + registration.qr_code_path) }}" 
+                                                   class="btn btn-success btn-sm" target="_blank">
+                                                    <i class="fas fa-qrcode me-1"></i>View QR Code
+                                                </a>
+                                            {% endif %}
+                                            
+                                            {% if event.is_upcoming %}
+                                                <button class="btn btn-outline-danger btn-sm" 
+                                                        onclick="unregisterFromEvent({{ event.id }})">
+                                                    <i class="fas fa-times me-1"></i>Unregister
+                                                </button>
+                                            {% endif %}
+                                            
+                                            {% if registration.attendance_status and not registration.student.feedbacks.filter_by(event_id=event.id).first() %}
+                                                <a href="{{ url_for('main.event_details', event_id=event.id) }}#feedback" 
+                                                   class="btn btn-outline-warning btn-sm">
+                                                    <i class="fas fa-star me-1"></i>Leave Feedback
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if registrations.pages > 1 %}
+                    <nav aria-label="Events pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if registrations.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ registrations.prev_num }}{% if current_status %}&status={{ current_status }}{% endif %}">Previous</a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for page_num in registrations.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != registrations.page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_num }}{% if current_status %}&status={{ current_status }}{% endif %}">{{ page_num }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ page_num }}</span>
+                                        </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if registrations.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ registrations.next_num }}{% if current_status %}&status={{ current_status }}{% endif %}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times text-muted fa-4x mb-4"></i>
+                    {% if current_status == 'upcoming' %}
+                        <h4 class="text-muted">No upcoming events</h4>
+                        <p class="text-muted">You haven't registered for any upcoming events yet.</p>
+                    {% elif current_status == 'past' %}
+                        <h4 class="text-muted">No past events</h4>
+                        <p class="text-muted">You haven't attended any past events yet.</p>
+                    {% elif current_status == 'attended' %}
+                        <h4 class="text-muted">No attended events</h4>
+                        <p class="text-muted">You haven't been marked as attended for any events yet.</p>
+                    {% else %}
+                        <h4 class="text-muted">No events registered</h4>
+                        <p class="text-muted">You haven't registered for any events yet. Start exploring!</p>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('main.browse_events') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Browse Events
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function unregisterFromEvent(eventId) {
+    if (confirm('Are you sure you want to unregister from this event?')) {
+        fetch(`/events/${eventId}/unregister`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Successfully unregistered from event!');
+                location.reload();
+            } else {
+                alert('Unregistration failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred during unregistration');
+        });
+    }
+}
+</script>
+{% endblock %}
