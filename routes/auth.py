@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from models.user import Student, Admin
 from extensions import db
 from utils.forms import LoginForm, StudentRegistrationForm
+from utils.mobile_detector import MobileDetector, mobile_template
 import re
 
 auth_bp = Blueprint('auth', __name__)
@@ -53,7 +54,7 @@ def login():
             else:
                 flash('Invalid email or password', 'error')
     
-    return render_template('auth/login.html', form=form)
+    return render_template(mobile_template('auth/login.html'), form=form)
 
 @auth_bp.route('/student/register', methods=['GET', 'POST'])
 def student_register():
@@ -95,7 +96,7 @@ def student_register():
         flash('Registration successful! You can now log in.', 'success')
         return redirect(url_for('auth.login'))
     
-    return render_template('auth/student_register.html', form=form)
+    return render_template(mobile_template('auth/student_register.html'), form=form)
 
 @auth_bp.route('/logout')
 @login_required

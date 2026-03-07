@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Social Feed - AU Events</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4361ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Mobile CSS -->
+    <link href="{{ url_for('static', filename='css/mobile.css') }}" rel="stylesheet">
+    
+    <style>
+        .post-card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .post-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--mobile-primary), #3651de);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+        
+        .author-info h6 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--mobile-text);
+        }
+        
+        .author-info small {
+            color: var(--mobile-text-secondary);
+        }
+        
+        .post-content {
+            padding: 16px;
+        }
+        
+        .post-media {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 12px 0;
+        }
+        
+        .post-media img, .post-media video {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+        
+        .post-actions {
+            padding: 12px 16px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--mobile-text-secondary);
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .action-btn:hover, .action-btn.active {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--mobile-primary);
+        }
+        
+        .action-btn.liked {
+            color: #dc3545;
+        }
+        
+        .comments-section {
+            padding: 0 16px 16px;
+            border-top: 1px solid #f0f0f0;
+            margin-top: 8px;
+        }
+        
+        .comment {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: rgba(0,0,0,0.02);
+            border-radius: 12px;
+        }
+        
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--mobile-secondary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-size: 12px;
+        }
+        
+        .comment-content {
+            flex: 1;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        
+        .comment-text {
+            font-size: 14px;
+            color: var(--mobile-text);
+        }
+        
+        .comment-time {
+            font-size: 12px;
+            color: var(--mobile-text-secondary);
+            margin-top: 4px;
+        }
+        
+        .add-comment {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+        
+        .add-comment input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        
+        .add-comment button {
+            background: var(--mobile-primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .filter-tabs {
+            background: white;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+        }
+        
+        .filter-tab {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            color: var(--mobile-text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-tab.active, .filter-tab:hover {
+            background: var(--mobile-primary);
+            color: white;
+            border-color: var(--mobile-primary);
+        }
+        
+        .create-post-fab {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--mobile-primary), #3651de);
+            color: white;
+            border: none;
+            font-size: 20px;
+            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .create-post-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(67, 97, 238, 0.6);
+        }
+        
+        .event-tag {
+            display: inline-block;
+            background: rgba(25, 135, 84, 0.1);
+            color: var(--success-color);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .post-stats {
+            padding: 8px 16px;
+            color: var(--mobile-text-secondary);
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .media-preview {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-app">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>
+                    <i class="fas fa-users me-2"></i>
+                    Social Feed
+                </h1>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="refreshFeed()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="header-btn" onclick="toggleSearch()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Content -->
+        <main class="mobile-content">
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <a href="{{ url_for('social.social_feed', filter='all') }}" 
+                   class="filter-tab {{ 'active' if filter_type == 'all' else '' }}">
+                    <i class="fas fa-globe me-1"></i>All Posts
+                </a>
+                <a href="{{ url_for('social.social_feed', filter='department') }}" 
+                   class="filter-tab {{ 'active' if filter_type == 'department' else '' }}">
+                    <i class="fas fa-building me-1"></i>Department
+                </a>
+                <a href="{{ url_for('social.social_feed', filter='events') }}" 
+                   class="filter-tab {{ 'active' if filter_type == 'events' else '' }}">
+                    <i class="fas fa-calendar me-1"></i>Events
+                </a>
+            </div>
+
+            <!-- Posts Feed -->
+            <div id="posts-container">
+                {% for post in posts.items %}
+                <div class="post-card" data-post-id="{{ post.id }}">
+                    <!-- Post Header -->
+                    <div class="post-header">
+                        <div class="author-avatar">
+                            {{ post.author.first_name[0] if post.author else 'U' }}
+                        </div>
+                        <div class="author-info flex-grow-1">
+                            <h6>{{ post.author.first_name }} {{ post.author.last_name if post.author else 'Unknown User' }}</h6>
+                            <small>
+                                <i class="fas fa-graduation-cap me-1"></i>
+                                {{ post.author.department if post.author and hasattr(post.author, 'department') else post.author_type.title() }}
+                                •
+                                <i class="fas fa-clock me-1"></i>
+                                {{ post.created_at.strftime('%d %b, %I:%M %p') }}
+                            </small>
+                        </div>
+                        {% if post.is_pinned %}
+                        <div class="text-warning">
+                            <i class="fas fa-thumbtack"></i>
+                        </div>
+                        {% endif %}
+                        {% if post.can_edit(current_user) %}
+                        <div class="dropdown">
+                            <button class="btn btn-link btn-sm" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('social.edit_post', post_id=post.id) }}">
+                                    <i class="fas fa-edit me-2"></i>Edit
+                                </a></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="deletePost({{ post.id }})">
+                                    <i class="fas fa-trash me-2"></i>Delete
+                                </a></li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Event Tag -->
+                    {% if post.event %}
+                    <div style="padding: 8px 16px;">
+                        <div class="event-tag">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ post.event.title }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Post Content -->
+                    <div class="post-content">
+                        <p class="mb-2">{{ post.content }}</p>
+                        
+                        <!-- Media Content -->
+                        {% if post.media_url %}
+                        <div class="media-preview">
+                            {% if post.media_type == 'image' %}
+                                <img src="{{ post.media_url }}" alt="Post image" class="post-media" onclick="openImageModal('{{ post.media_url }}')">
+                            {% elif post.media_type == 'video' %}
+                                <video class="post-media" controls preload="metadata">
+                                    <source src="{{ post.media_url }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            {% elif post.media_type == 'document' %}
+                                <div class="d-flex align-items-center p-3 bg-light rounded">
+                                    <i class="fas fa-file-alt fa-2x text-primary me-3"></i>
+                                    <div>
+                                        <strong>Document</strong><br>
+                                        <a href="{{ post.media_url }}" target="_blank" class="text-primary">
+                                            <i class="fas fa-download me-1"></i>Download
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Post Stats -->
+                    {% if post.likes_count > 0 or post.comments_count > 0 or post.shares_count > 0 %}
+                    <div class="post-stats">
+                        <span>
+                            {% if post.likes_count > 0 %}
+                                <i class="fas fa-heart text-danger"></i> {{ post.likes_count }}
+                            {% endif %}
+                            {% if post.comments_count > 0 %}
+                                <i class="fas fa-comment ms-3"></i> {{ post.comments_count }}
+                            {% endif %}
+                            {% if post.shares_count > 0 %}
+                                <i class="fas fa-share ms-3"></i> {{ post.shares_count }}
+                            {% endif %}
+                            {% if post.views_count > 0 %}
+                                <i class="fas fa-eye ms-3"></i> {{ post.views_count }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Post Actions -->
+                    <div class="post-actions">
+                        <button class="action-btn like-btn {{ 'liked' if post.is_liked_by(current_user) else '' }}" 
+                                onclick="toggleLike({{ post.id }})">
+                            <i class="fas fa-heart"></i>
+                            <span class="like-count">{{ post.likes_count if post.likes_count > 0 else 'Like' }}</span>
+                        </button>
+                        
+                        <button class="action-btn" onclick="toggleComments({{ post.id }})">
+                            <i class="fas fa-comment"></i>
+                            <span>Comment</span>
+                        </button>
+                        
+                        <button class="action-btn" onclick="sharePost({{ post.id }})">
+                            <i class="fas fa-share"></i>
+                            <span>Share</span>
+                        </button>
+                        
+                        <button class="action-btn" onclick="viewPost({{ post.id }})">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span>View</span>
+                        </button>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section" id="comments-{{ post.id }}" style="display: none;">
+                        <!-- Recent Comments -->
+                        {% for comment in post.get_recent_comments() %}
+                        <div class="comment">
+                            <div class="comment-avatar">
+                                {{ comment.author.first_name[0] if comment.author else 'U' }}
+                            </div>
+                            <div class="comment-content">
+                                <div class="comment-author">{{ comment.author.first_name if comment.author else 'Unknown' }}</div>
+                                <div class="comment-text">{{ comment.content }}</div>
+                                <div class="comment-time">{{ comment.created_at.strftime('%d %b, %I:%M %p') }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Add Comment -->
+                        <div class="add-comment">
+                            <input type="text" placeholder="Write a comment..." class="comment-input" data-post-id="{{ post.id }}">
+                            <button onclick="addComment({{ post.id }})">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Load More / Pagination -->
+            {% if posts.pages > 1 %}
+            <div class="text-center mt-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    {% if posts.has_prev %}
+                        <a href="{{ url_for('social.social_feed', page=posts.prev_num, filter=filter_type) }}" 
+                           class="mobile-btn-small">
+                            <i class="fas fa-chevron-left me-2"></i>Previous
+                        </a>
+                    {% else %}
+                        <span></span>
+                    {% endif %}
+                    
+                    <span class="text-muted">
+                        Page {{ posts.page }} of {{ posts.pages }}
+                    </span>
+                    
+                    {% if posts.has_next %}
+                        <a href="{{ url_for('social.social_feed', page=posts.next_num, filter=filter_type) }}" 
+                           class="mobile-btn-small">
+                            Next<i class="fas fa-chevron-right ms-2"></i>
+                        </a>
+                    {% else %}
+                        <span></span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Empty State -->
+            {% if not posts.items %}
+            <div class="text-center py-5">
+                <i class="fas fa-comments" style="font-size: 64px; color: var(--mobile-text-secondary);"></i>
+                <h3 class="mt-3 mb-2">No Posts Yet</h3>
+                <p class="text-muted mb-4">Be the first to share something with the community!</p>
+                <a href="{{ url_for('social.create_post') }}" class="mobile-btn">
+                    <i class="fas fa-plus me-2"></i>Create First Post
+                </a>
+            </div>
+            {% endif %}
+        </main>
+
+        <!-- Create Post FAB -->
+        <button class="create-post-fab" onclick="window.location.href='{{ url_for('social.create_post') }}'">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Mobile Bottom Navigation -->
+        <footer class="mobile-footer">
+            <button class="nav-btn" onclick="window.location.href='{{ url_for('main.dashboard') }}'">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-btn active">
+                <i class="fas fa-users"></i>
+                <span>Social</span>
+            </button>
+            <button class="nav-btn" onclick="window.location.href='{{ url_for('main.events') }}'">
+                <i class="fas fa-calendar"></i>
+                <span>Events</span>
+            </button>
+            <button class="nav-btn" onclick="window.location.href='{{ url_for('main.notifications') }}'">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </button>
+            <button class="nav-btn" onclick="window.location.href='{{ url_for('auth.profile') }}'">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </button>
+        </footer>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <img id="modalImage" src="" class="w-100">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/mobile-app.js') }}"></script>
+    
+    <script>
+        // Like/Unlike functionality
+        function toggleLike(postId) {
+            fetch(`/social/api/post/${postId}/like`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const btn = document.querySelector(`[data-post-id="${postId}"] .like-btn`);
+                    const countSpan = btn.querySelector('.like-count');
+                    
+                    if (data.liked) {
+                        btn.classList.add('liked');
+                        window.mobileApp.vibrate([50]);
+                    } else {
+                        btn.classList.remove('liked');
+                    }
+                    
+                    countSpan.textContent = data.likes_count > 0 ? data.likes_count : 'Like';
+                    
+                    // Update stats section
+                    updatePostStats(postId);
+                } else {
+                    window.mobileApp.showToast(data.message || 'Error updating like', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Like error:', error);
+                window.mobileApp.showToast('Network error', 'error');
+            });
+        }
+        
+        // Toggle comments section
+        function toggleComments(postId) {
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            if (commentsSection.style.display === 'none') {
+                commentsSection.style.display = 'block';
+                commentsSection.querySelector('.comment-input').focus();
+            } else {
+                commentsSection.style.display = 'none';
+            }
+        }
+        
+        // Add comment
+        function addComment(postId) {
+            const input = document.querySelector(`[data-post-id="${postId}"]`);
+            const content = input.value.trim();
+            
+            if (!content) {
+                window.mobileApp.showToast('Please enter a comment', 'warning');
+                return;
+            }
+            
+            fetch(`/social/api/post/${postId}/comment`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: content })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    window.mobileApp.showToast('Comment added!', 'success');
+                    // Reload comments or add new comment to UI
+                    location.reload(); // Simple solution for now
+                } else {
+                    window.mobileApp.showToast(data.message || 'Error adding comment', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Comment error:', error);
+                window.mobileApp.showToast('Network error', 'error');
+            });
+        }
+        
+        // Share post
+        function sharePost(postId) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'AU Events Post',
+                    text: 'Check out this post from AU Events',
+                    url: `/social/post/${postId}`
+                });
+            } else {
+                // Fallback - copy link
+                const url = `${window.location.origin}/social/post/${postId}`;
+                navigator.clipboard.writeText(url).then(() => {
+                    window.mobileApp.showToast('Link copied to clipboard!', 'success');
+                });
+            }
+            
+            // Track share
+            fetch(`/social/api/post/${postId}/share`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updatePostStats(postId);
+                }
+            });
+        }
+        
+        // View full post
+        function viewPost(postId) {
+            window.location.href = `/social/post/${postId}`;
+        }
+        
+        // Delete post
+        function deletePost(postId) {
+            if (!confirm('Are you sure you want to delete this post?')) return;
+            
+            fetch(`/social/post/${postId}/delete`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelector(`[data-post-id="${postId}"]`).remove();
+                    window.mobileApp.showToast('Post deleted', 'success');
+                } else {
+                    window.mobileApp.showToast(data.message || 'Error deleting post', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Delete error:', error);
+                window.mobileApp.showToast('Network error', 'error');
+            });
+        }
+        
+        // Open image modal
+        function openImageModal(imageUrl) {
+            document.getElementById('modalImage').src = imageUrl;
+            new bootstrap.Modal(document.getElementById('imageModal')).show();
+        }
+        
+        // Refresh feed
+        function refreshFeed() {
+            location.reload();
+        }
+        
+        // Update post stats
+        function updatePostStats(postId) {
+            // This would ideally fetch fresh stats via API
+            // For now, we'll reload the page for simplicity
+            setTimeout(() => location.reload(), 1000);
+        }
+        
+        // Auto-refresh feed every 30 seconds
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                fetch(`/social/api/posts/recent?limit=1`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.posts.length > 0) {
+                        // Show notification if new posts are available
+                        const latestPost = data.posts[0];
+                        const existingPost = document.querySelector(`[data-post-id="${latestPost.id}"]`);
+                        
+                        if (!existingPost) {
+                            const refreshBtn = document.querySelector('[onclick="refreshFeed()"]');
+                            refreshBtn.style.color = '#28a745';
+                            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+                        }
+                    }
+                });
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

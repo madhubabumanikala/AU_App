@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Create Post - AU Events</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4361ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Mobile CSS -->
+    <link href="{{ url_for('static', filename='css/mobile.css') }}" rel="stylesheet">
+    
+    <style>
+        .create-post-form {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        
+        .post-textarea {
+            width: 100%;
+            border: none;
+            resize: none;
+            outline: none;
+            font-size: 16px;
+            line-height: 1.5;
+            min-height: 120px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .post-textarea:focus {
+            background: white;
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+        
+        .media-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .media-upload-area:hover, .media-upload-area.drag-over {
+            border-color: var(--mobile-primary);
+            background: rgba(67, 97, 238, 0.05);
+        }
+        
+        .media-upload-area.has-file {
+            border-color: var(--success-color);
+            background: rgba(25, 135, 84, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 12px;
+        }
+        
+        .upload-text {
+            color: var(--mobile-text-secondary);
+            font-size: 14px;
+        }
+        
+        .media-preview {
+            position: relative;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .media-preview img, .media-preview video {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .remove-media {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .post-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 12px 0;
+            border-top: 1px solid #eee;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--mobile-text-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .action-icon:hover, .action-icon.active {
+            background: var(--mobile-primary);
+            color: white;
+            border-color: var(--mobile-primary);
+        }
+        
+        .privacy-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .privacy-selector select {
+            border: none;
+            background: none;
+            font-size: 14px;
+            color: var(--mobile-text);
+            outline: none;
+        }
+        
+        .event-selector {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .event-selector select {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: var(--mobile-text);
+        }
+        
+        .character-count {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 12px;
+            color: var(--mobile-text-secondary);
+        }
+        
+        .submit-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .draft-btn {
+            flex: 1;
+            background: var(--mobile-secondary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .publish-btn {
+            flex: 2;
+            background: var(--mobile-primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--mobile-primary);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .file-details {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        
+        .file-size {
+            font-size: 12px;
+            color: var(--mobile-text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-app">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="header-btn" onclick="window.history.back()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1>Create Post</h1>
+                <button class="header-btn" onclick="previewPost()">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Content -->
+        <main class="mobile-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mobile-alert mobile-alert-{{ 'danger' if category == 'error' else category }}">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'info-circle' }}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Create Post Form -->
+            <form class="create-post-form" method="POST" enctype="multipart/form-data" id="createPostForm">
+                <!-- User Info -->
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                         style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--mobile-primary), #3651de); color: white; font-weight: bold;">
+                        {{ current_user.first_name[0] }}
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{{ current_user.first_name }} {{ current_user.last_name }}</h6>
+                        <small class="text-muted">
+                            <i class="fas fa-graduation-cap me-1"></i>
+                            {{ current_user.department if hasattr(current_user, 'department') else current_user.__class__.__name__.title() }}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Post Content -->
+                <div class="position-relative">
+                    <textarea name="content" class="post-textarea" 
+                              placeholder="What's happening at AU? Share your thoughts, experiences, or event updates..."
+                              maxlength="2000" required></textarea>
+                    <div class="character-count">
+                        <span id="charCount">0</span>/2000
+                    </div>
+                </div>
+
+                <!-- Event Association -->
+                <div class="event-selector" id="eventSelector" style="display: none;">
+                    <label class="form-label">
+                        <i class="fas fa-calendar me-2"></i>Associate with Event (Optional)
+                    </label>
+                    <select name="event_id" class="form-select">
+                        <option value="">No event association</option>
+                        {% for event in events %}
+                        <option value="{{ event.id }}">
+                            {{ event.title }} - {{ event.date.strftime('%d %b %Y') }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Media Upload -->
+                <div class="media-upload-area" onclick="document.getElementById('mediaFile').click()">
+                    <input type="file" id="mediaFile" name="media_file" style="display: none;" 
+                           accept="image/*,video/*,.pdf,.doc,.docx,.txt" onchange="handleFileSelect(this)">
+                    
+                    <div id="uploadPrompt">
+                        <div class="upload-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="upload-text">
+                            <strong>Add photos, videos, or documents</strong><br>
+                            <small>Drag and drop or click to browse</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Preview -->
+                <div id="mediaPreview" style="display: none;"></div>
+
+                <!-- File Info -->
+                <div id="fileInfo" style="display: none;"></div>
+
+                <!-- Post Options -->
+                <div class="post-options">
+                    <div class="post-actions">
+                        <div class="action-icon" onclick="toggleEventSelector()" title="Add Event">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <div class="action-icon" onclick="document.getElementById('mediaFile').click()" title="Add Media">
+                            <i class="fas fa-paperclip"></i>
+                        </div>
+                        <div class="action-icon" onclick="addLocation()" title="Add Location">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="action-icon" onclick="schedulePost()" title="Schedule Post">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="privacy-selector">
+                        <i class="fas fa-globe"></i>
+                        <select name="visibility">
+                            <option value="public">Public</option>
+                            {% if hasattr(current_user, 'department') %}
+                            <option value="department">Department Only</option>
+                            {% endif %}
+                            <option value="private">Private</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit Actions -->
+                <div class="submit-actions">
+                    <button type="button" class="draft-btn" onclick="saveDraft()">
+                        <i class="fas fa-save me-2"></i>Save Draft
+                    </button>
+                    <button type="submit" class="publish-btn">
+                        <i class="fas fa-paper-plane me-2"></i>Publish Post
+                    </button>
+                </div>
+            </form>
+
+            <!-- Quick Post Templates -->
+            <div class="mobile-card">
+                <h4><i class="fas fa-magic me-2"></i>Quick Templates</h4>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button class="mobile-btn mobile-btn-outline mobile-btn-small w-100" 
+                                onclick="insertTemplate('event')">
+                            <i class="fas fa-calendar me-1"></i>Event Announcement
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="mobile-btn mobile-btn-outline mobile-btn-small w-100" 
+                                onclick="insertTemplate('achievement')">
+                            <i class="fas fa-trophy me-1"></i>Achievement
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="mobile-btn mobile-btn-outline mobile-btn-small w-100" 
+                                onclick="insertTemplate('question')">
+                            <i class="fas fa-question-circle me-1"></i>Question
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="mobile-btn mobile-btn-outline mobile-btn-small w-100" 
+                                onclick="insertTemplate('update')">
+                            <i class="fas fa-bullhorn me-1"></i>Update
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/mobile-app.js') }}"></script>
+    
+    <script>
+        const textarea = document.querySelector('.post-textarea');
+        const charCount = document.getElementById('charCount');
+        const mediaUploadArea = document.querySelector('.media-upload-area');
+        let selectedFile = null;
+        
+        // Character count
+        textarea.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count;
+            
+            if (count > 1800) {
+                charCount.style.color = '#dc3545';
+            } else if (count > 1500) {
+                charCount.style.color = '#ffc107';
+            } else {
+                charCount.style.color = 'var(--mobile-text-secondary)';
+            }
+        });
+        
+        // Drag and drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            mediaUploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            mediaUploadArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            mediaUploadArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        mediaUploadArea.addEventListener('drop', handleDrop, false);
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function highlight() {
+            mediaUploadArea.classList.add('drag-over');
+        }
+        
+        function unhighlight() {
+            mediaUploadArea.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+        
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                handleFile(input.files[0]);
+            }
+        }
+        
+        function handleFile(file) {
+            // Validate file
+            const allowedTypes = [
+                'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+                'video/mp4', 'video/webm', 'video/avi',
+                'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'text/plain', 'audio/mp3', 'audio/wav'
+            ];
+            
+            if (!allowedTypes.includes(file.type)) {
+                window.mobileApp.showToast('File type not supported', 'error');
+                return;
+            }
+            
+            // Check file size (10MB for images, 100MB for videos, 20MB for documents)
+            const maxSizes = {
+                'image': 10 * 1024 * 1024,
+                'video': 100 * 1024 * 1024,
+                'application': 20 * 1024 * 1024,
+                'text': 20 * 1024 * 1024,
+                'audio': 50 * 1024 * 1024
+            };
+            
+            const fileType = file.type.split('/')[0];
+            const maxSize = maxSizes[fileType] || maxSizes['application'];
+            
+            if (file.size > maxSize) {
+                window.mobileApp.showToast(`File too large. Max size: ${Math.round(maxSize / (1024*1024))}MB`, 'error');
+                return;
+            }
+            
+            selectedFile = file;
+            showFilePreview(file);
+            mediaUploadArea.classList.add('has-file');
+            document.getElementById('uploadPrompt').style.display = 'none';
+        }
+        
+        function showFilePreview(file) {
+            const preview = document.getElementById('mediaPreview');
+            const fileInfo = document.getElementById('fileInfo');
+            
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <div class="media-preview">
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="remove-media" onclick="removeMedia()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type.startsWith('video/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <div class="media-preview">
+                            <video controls>
+                                <source src="${e.target.result}" type="${file.type}">
+                            </video>
+                            <button type="button" class="remove-media" onclick="removeMedia()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Show file info for documents
+                const iconMap = {
+                    'application/pdf': 'fas fa-file-pdf',
+                    'application/msword': 'fas fa-file-word',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'fas fa-file-word',
+                    'text/plain': 'fas fa-file-alt',
+                    'audio/mp3': 'fas fa-file-audio',
+                    'audio/wav': 'fas fa-file-audio'
+                };
+                
+                const icon = iconMap[file.type] || 'fas fa-file';
+                const size = (file.size / (1024 * 1024)).toFixed(2);
+                
+                fileInfo.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-icon">
+                            <i class="${icon}"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${size} MB</div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeMedia()">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                fileInfo.style.display = 'block';
+            }
+        }
+        
+        function removeMedia() {
+            selectedFile = null;
+            document.getElementById('mediaFile').value = '';
+            document.getElementById('mediaPreview').style.display = 'none';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('uploadPrompt').style.display = 'block';
+            mediaUploadArea.classList.remove('has-file');
+        }
+        
+        function toggleEventSelector() {
+            const selector = document.getElementById('eventSelector');
+            const icon = event.target.closest('.action-icon');
+            
+            if (selector.style.display === 'none') {
+                selector.style.display = 'block';
+                icon.classList.add('active');
+            } else {
+                selector.style.display = 'none';
+                icon.classList.remove('active');
+            }
+        }
+        
+        function addLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const location = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+                    textarea.value += `\n📍 Current Location: ${location}`;
+                    textarea.dispatchEvent(new Event('input'));
+                });
+            } else {
+                window.mobileApp.showToast('Geolocation not supported', 'warning');
+            }
+        }
+        
+        function schedulePost() {
+            window.mobileApp.showToast('Scheduling feature coming soon!', 'info');
+        }
+        
+        function insertTemplate(type) {
+            const templates = {
+                event: "🎉 Exciting news! We're organizing [Event Name] on [Date] at [Location]. Join us for [brief description]. Register now! #AUEvents",
+                achievement: "🏆 Proud to announce that [achievement details]. Special thanks to [people/department]. #Achievement #AUSuccess",
+                question: "🤔 Quick question for the AU community: [your question]? Share your thoughts and experiences! #Discussion",
+                update: "📢 Important update: [update details]. Please note [important information]. For more details, contact [contact info]. #Update"
+            };
+            
+            const template = templates[type];
+            if (template) {
+                textarea.value = template;
+                textarea.focus();
+                textarea.dispatchEvent(new Event('input'));
+            }
+        }
+        
+        function saveDraft() {
+            const formData = new FormData(document.getElementById('createPostForm'));
+            localStorage.setItem('postDraft', JSON.stringify({
+                content: formData.get('content'),
+                visibility: formData.get('visibility'),
+                event_id: formData.get('event_id'),
+                timestamp: new Date().toISOString()
+            }));
+            
+            window.mobileApp.showToast('Draft saved!', 'success');
+        }
+        
+        function previewPost() {
+            const content = textarea.value.trim();
+            if (!content) {
+                window.mobileApp.showToast('Write something to preview', 'warning');
+                return;
+            }
+            
+            // Simple preview - could be enhanced with a modal
+            alert(`Post Preview:\n\n${content}`);
+        }
+        
+        // Load draft on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const draft = localStorage.getItem('postDraft');
+            if (draft) {
+                try {
+                    const draftData = JSON.parse(draft);
+                    const draftAge = (Date.now() - Date.parse(draftData.timestamp)) / (1000 * 60 * 60); // hours
+                    
+                    if (draftAge < 24 && draftData.content) { // Keep drafts for 24 hours
+                        if (confirm('You have a saved draft. Would you like to restore it?')) {
+                            textarea.value = draftData.content;
+                            document.querySelector('[name="visibility"]').value = draftData.visibility || 'public';
+                            if (draftData.event_id) {
+                                document.querySelector('[name="event_id"]').value = draftData.event_id;
+                                toggleEventSelector();
+                            }
+                            textarea.dispatchEvent(new Event('input'));
+                        }
+                    }
+                } catch (e) {
+                    localStorage.removeItem('postDraft');
+                }
+            }
+        });
+        
+        // Form submission
+        document.getElementById('createPostForm').addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('.publish-btn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Publishing...';
+            submitBtn.disabled = true;
+            
+            // Clear draft after successful submission
+            setTimeout(() => {
+                localStorage.removeItem('postDraft');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
