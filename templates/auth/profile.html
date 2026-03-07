@@ -3,193 +3,208 @@
 {% block title %}My Profile - AU Event System{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <!-- Profile Header -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body bg-primary text-white rounded-top">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h3 class="mb-1">{{ current_user.full_name }}</h3>
-                            <p class="mb-0">{{ current_user.student_id }} - {{ current_user.department }}</p>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-light">
-                                <i class="fas fa-edit me-1"></i>Edit Profile
-                            </a>
-                        </div>
-                    </div>
+<!-- Profile Header -->
+<div class="card slide-up">
+    <div class="card-header" style="background: var(--primary-gradient); color: white;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle me-3" style="background: rgba(255,255,255,0.2); width: 64px; height: 64px; font-size: 1.5rem;">
+                    {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+                </div>
+                <div>
+                    <h1 class="display-title mb-1 text-white">{{ current_user.full_name }}</h1>
+                    <small class="opacity-75">{{ current_user.student_id }} • {{ current_user.department }}</small>
                 </div>
             </div>
+            <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-edit me-2"></i>Edit Profile
+            </a>
+        </div>
+    </div>
 
-            <div class="row">
-                <!-- Personal Information -->
-                <div class="col-md-6">
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header">
-                            <h5 class="mb-0">
-                                <i class="fas fa-user me-2"></i>Personal Information
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <table class="table table-borderless">
-                                <tr>
-                                    <td style="width: 150px;"><strong>Full Name:</strong></td>
-                                    <td style="padding-left: 20px;">{{ current_user.full_name }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 150px;"><strong>Student ID:</strong></td>
-                                    <td style="padding-left: 20px;">{{ current_user.student_id }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 150px;"><strong>Email:</strong></td>
-                                    <td style="padding-left: 20px;">{{ current_user.email }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 150px;"><strong>Department:</strong></td>
-                                    <td style="padding-left: 20px;">{{ current_user.department }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="width: 150px;"><strong>Year:</strong></td>
-                                    <td style="padding-left: 20px;">{{ current_user.year }}</td>
-                                </tr>
-                                {% if current_user.phone_number %}
-                                <tr>
-                                    <td style="width: 150px;"><strong>Phone:</strong></td>
-                                    <td style="padding-left: 20px;">{{ current_user.phone_number }}</td>
-                                </tr>
-                                {% endif %}
-                                <tr>
-                                    <td style="width: 150px;"><strong>Member Since:</strong></td>
-                                    <td style="padding-left: 20px;">{{ current_user.created_at.strftime('%B %d, %Y') }}</td>
-                                </tr>
-                            </table>
+    
+    <!-- Personal Information -->
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-circle me-3" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h5 class="mb-0">Personal Information</h5>
                         </div>
                     </div>
-                </div>
-
-                <!-- Account Statistics -->
-                <div class="col-md-6">
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header">
-                            <h5 class="mb-0">
-                                <i class="fas fa-chart-bar me-2"></i>Activity Summary
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row text-center">
-                                <div class="col-6 mb-3">
-                                    <div class="border rounded p-3">
-                                        <h3 class="text-primary mb-1">{{ current_user.event_registrations.count() }}</h3>
-                                        <small class="text-muted">Events Registered</small>
-                                    </div>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <div class="border rounded p-3">
-                                        <h3 class="text-success mb-1">{{ current_user.event_registrations.filter_by(attendance_status=True).count() }}</h3>
-                                        <small class="text-muted">Events Attended</small>
-                                    </div>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <div class="border rounded p-3">
-                                        <h3 class="text-warning mb-1">{{ current_user.feedbacks.count() }}</h3>
-                                        <small class="text-muted">Feedbacks Given</small>
-                                    </div>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <div class="border rounded p-3">
-                                        <h3 class="text-info mb-1">{{ current_user.notifications.filter_by(is_read=False).count() }}</h3>
-                                        <small class="text-muted">Unread Notifications</small>
-                                    </div>
-                                </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Full Name</span>
+                                <span class="fw-semibold">{{ current_user.full_name }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Student ID</span>
+                                <span class="fw-semibold">{{ current_user.student_id }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Email</span>
+                                <span class="fw-semibold">{{ current_user.email }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Department</span>
+                                <span class="fw-semibold">{{ current_user.department }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Year</span>
+                                <span class="fw-semibold">{{ current_user.year or 'N/A' }}</span>
+                            </div>
+                            {% if current_user.phone_number %}
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Phone</span>
+                                <span class="fw-semibold">{{ current_user.phone_number }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Member Since</span>
+                                <span class="fw-semibold">{{ current_user.created_at.strftime('%b %d, %Y') }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Activities -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-history me-2"></i>Recent Event Registrations
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% set recent_registrations = current_user.event_registrations.order_by(text('-registration_date')).limit(5).all() %}
-                    {% if recent_registrations %}
-                        <div class="list-group list-group-flush">
-                            {% for registration in recent_registrations %}
-                                <div class="list-group-item border-0 px-0">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">{{ registration.event.title }}</h6>
-                                        <small>{{ registration.registration_date.strftime('%d %b %Y') }}</small>
-                                    </div>
-                                    <p class="mb-1 small text-muted">{{ registration.event.department }} - {{ registration.event.category.title() }}</p>
-                                    <small>
-                                        {% if registration.attendance_status %}
-                                            <span class="badge bg-success">Attended</span>
-                                        {% elif registration.event.date < today %}
-                                            <span class="badge bg-secondary">Past Event</span>
-                                        {% else %}
-                                            <span class="badge bg-primary">Upcoming</span>
-                                        {% endif %}
-                                        <span class="text-muted">{{ registration.event.date.strftime('%d %b %Y') }}</span>
-                                    </small>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-circle me-3" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h5 class="mb-0">Activity Summary</h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-grid card-grid-2">
+                            <div class="text-center p-3 rounded" style="background: var(--primary-gradient); color: white;">
+                                <div class="icon-circle mx-auto mb-2" style="background: rgba(255,255,255,0.2); width: 40px; height: 40px;">
+                                    <i class="fas fa-calendar-plus"></i>
                                 </div>
-                            {% endfor %}
-                        </div>
-                        <div class="text-center mt-3">
-                            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">
-                                <i class="fas fa-eye me-1"></i>View All Events
-                            </a>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-calendar-times text-muted fa-3x mb-3"></i>
-                            <p class="text-muted">No event registrations yet</p>
-                            <a href="{{ url_for('main.events') }}" class="btn btn-primary">
-                                <i class="fas fa-search me-1"></i>Browse Events
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bolt me-2"></i>Quick Actions
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-primary w-100">
-                                <i class="fas fa-edit me-1"></i>Edit Profile
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('main.events') }}" class="btn btn-outline-success w-100">
-                                <i class="fas fa-calendar-plus me-1"></i>Browse Events
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('main.notifications') }}" class="btn btn-outline-warning w-100">
-                                <i class="fas fa-bell me-1"></i>Notifications
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger w-100">
-                                <i class="fas fa-sign-out-alt me-1"></i>Logout
-                            </a>
+                                <h4 class="mb-1">{{ current_user.event_registrations.count() }}</h4>
+                                <small class="opacity-75">Events Registered</small>
+                            </div>
+                            <div class="text-center p-3 rounded" style="background: var(--success-gradient); color: white;">
+                                <div class="icon-circle mx-auto mb-2" style="background: rgba(255,255,255,0.2); width: 40px; height: 40px;">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <h4 class="mb-1">{{ current_user.event_registrations.filter_by(attendance_status=True).count() }}</h4>
+                                <small class="opacity-75">Events Attended</small>
+                            </div>
+                            <div class="text-center p-3 rounded" style="background: var(--warning-gradient); color: white;">
+                                <div class="icon-circle mx-auto mb-2" style="background: rgba(255,255,255,0.2); width: 40px; height: 40px;">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <h4 class="mb-1">{{ current_user.feedbacks.count() }}</h4>
+                                <small class="opacity-75">Feedbacks Given</small>
+                            </div>
+                            <div class="text-center p-3 rounded" style="background: var(--info-gradient); color: white;">
+                                <div class="icon-circle mx-auto mb-2" style="background: rgba(255,255,255,0.2); width: 40px; height: 40px;">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <h4 class="mb-1">{{ current_user.notifications.filter_by(is_read=False).count() }}</h4>
+                                <small class="opacity-75">Unread Notifications</small>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Recent Event Registrations -->
+<div class="card mt-3">
+    <div class="card-header">
+        <div class="d-flex align-items-center">
+            <div class="icon-circle me-3" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                <i class="fas fa-history"></i>
+            </div>
+            <h5 class="mb-0">Recent Event Registrations</h5>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% set recent_registrations = current_user.event_registrations.order_by(text('-registration_date')).limit(5).all() %}
+        {% if recent_registrations %}
+            {% for registration in recent_registrations %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ registration.event.title }}</h6>
+                            <p class="mb-1 small text-muted">{{ registration.event.department }} • {{ registration.event.category.title() }}</p>
+                            <div class="d-flex align-items-center gap-2 mt-2">
+                                {% if registration.attendance_status %}
+                                    <span class="badge bg-success">Attended</span>
+                                {% elif registration.event.date < today %}
+                                    <span class="badge bg-secondary">Past Event</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Upcoming</span>
+                                {% endif %}
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>{{ registration.event.date.strftime('%d %b %Y') }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="text-end ms-3">
+                            <small class="text-muted">Registered</small>
+                            <div class="fw-semibold small">{{ registration.registration_date.strftime('%d %b') }}</div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            
+            <div class="card-body text-center">
+                <a href="{{ url_for('main.dashboard') }}" class="btn-gradient-primary btn-sm">
+                    <i class="fas fa-eye me-2"></i>View All Events
+                </a>
+            </div>
+        {% else %}
+            <div class="card-body text-center py-5">
+                <div class="icon-circle mx-auto mb-3" style="background: var(--light-bg); width: 64px; height: 64px; font-size: 1.5rem;">
+                    <i class="fas fa-calendar-times text-muted"></i>
+                </div>
+                <h6 class="text-muted">No Event Registrations</h6>
+                <p class="text-muted small mb-3">You haven't registered for any events yet</p>
+                <a href="{{ url_for('main.events') }}" class="btn-gradient-primary">
+                    <i class="fas fa-search me-2"></i>Browse Events
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card mt-3">
+    <div class="card-header">
+        <div class="d-flex align-items-center">
+            <div class="icon-circle me-3" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h5 class="mb-0">Quick Actions</h5>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="card-grid card-grid-2">
+            <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-primary d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-edit me-2"></i>Edit Profile
+            </a>
+            <a href="{{ url_for('main.events') }}" class="btn btn-outline-success d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-calendar-plus me-2"></i>Browse Events
+            </a>
+            <a href="{{ url_for('main.notifications') }}" class="btn btn-outline-warning d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-bell me-2"></i>Notifications
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
     </div>
 </div>
 {% endblock %}

@@ -3,60 +3,56 @@
 {% block title %}Event Calendar - AU Event System{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2>
-                    <i class="fas fa-calendar text-primary me-2"></i>Event Calendar
-                </h2>
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTaskModal">
-                        <i class="fas fa-plus me-2"></i>Add Task
-                    </button>
-                    <div>
-                        <a href="{{ url_for('main.calendar_view', year=year, month=month-1) if month > 1 else url_for('main.calendar_view', year=year-1, month=12) }}" 
-                           class="btn btn-outline-primary">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                        <span class="mx-3 fs-5">{{ month_name }} {{ year }}</span>
-                        <a href="{{ url_for('main.calendar_view', year=year, month=month+1) if month < 12 else url_for('main.calendar_view', year=year+1, month=1) }}" 
-                           class="btn btn-outline-primary">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </div>
+<!-- Calendar Header -->
+<div class="card slide-up">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle me-3" style="width: 40px; height: 40px;">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div>
+                    <h1 class="display-title mb-0">{{ month_name }} {{ year }}</h1>
+                    <small class="text-muted">Your events and tasks</small>
                 </div>
             </div>
+            <button type="button" class="btn-gradient-success btn-sm" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                <i class="fas fa-plus me-2"></i>Add Task
+            </button>
+        </div>
+        
+        <!-- Calendar Navigation -->
+        <div class="d-flex justify-content-between align-items-center mt-3 p-3 bg-light rounded">
+            <a href="{{ url_for('main.calendar_view', year=year, month=month-1) if month > 1 else url_for('main.calendar_view', year=year-1, month=12) }}" 
+               class="btn btn-outline-primary btn-sm rounded-pill">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            
+            <span class="fw-semibold">{{ month_name }} {{ year }}</span>
+            
+            <a href="{{ url_for('main.calendar_view', year=year, month=month+1) if month < 12 else url_for('main.calendar_view', year=year+1, month=1) }}" 
+               class="btn btn-outline-primary btn-sm rounded-pill">
+                <i class="fas fa-chevron-right"></i>
+            </a>
         </div>
     </div>
-
-    <!-- Calendar -->
-    <div class="row">
-        <div class="col-lg-9">
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-bordered mb-0" style="table-layout: fixed;">
-                            <thead class="table-primary">
-                                <tr>
-                                    <th class="text-center py-3">Sunday</th>
-                                    <th class="text-center py-3">Monday</th>
-                                    <th class="text-center py-3">Tuesday</th>
-                                    <th class="text-center py-3">Wednesday</th>
-                                    <th class="text-center py-3">Thursday</th>
-                                    <th class="text-center py-3">Friday</th>
-                                    <th class="text-center py-3">Saturday</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for week in calendar_data %}
-                                    <tr style="height: 120px;">
-                                        {% for day in week %}
-                                            <td class="p-2 align-top {% if day == 0 %}table-light{% endif %}" 
-                                                onclick="{% if day != 0 %}openAddTaskModal('{{ year }}-{{ '%02d'|format(month) }}-{{ '%02d'|format(day) }}'){% endif %}"
-                                                style="{% if day != 0 %}cursor: pointer;{% endif %}">
-                                                {% if day != 0 %}
+    
+    <div class="card-body p-0">
+        <!-- Calendar Grid -->
+        <div class="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #e9ecef;">
+            <!-- Calendar Headers -->
+            {% for day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] %}
+                <div class="p-2 text-center fw-semibold bg-primary text-white">
+                    {{ day }}
+                </div>
+            {% endfor %}
+            <!-- Calendar Days -->
+            {% for week in calendar_data %}
+                {% for day in week %}
+                    <div class="calendar-day bg-white p-2 {% if day == 0 %}bg-light{% endif %}" 
+                         style="min-height: 100px; {% if day != 0 %}cursor: pointer;{% endif %}" 
+                         {% if day != 0 %}onclick="openAddTaskModal('{{ year }}-{{ '%02d'|format(month) }}-{{ '%02d'|format(day) }}')"{% endif %}>
+                        {% if day != 0 %}
                                                     {% set current_date = '%04d-%02d-%02d'|format(year, month, day) %}
                                                     {% set day_events = [] %}
                                                     {% set day_tasks = [] %}
@@ -74,186 +70,121 @@
                                                     {% endfor %}
                                                     
                                                     
-                                                    <div class="d-flex justify-content-between mb-1">
-                                                        <span class="fw-bold">{{ day }}</span>
-                                                        {% if day_events or day_tasks %}
-                                                            <span class="badge bg-primary rounded-pill">{{ (day_events|length) + (day_tasks|length) }}</span>
-                                                        {% endif %}
-                                                    </div>
-                                                    
-                                                    <!-- Official Events -->
-                                                    {% for event in day_events[:2] %}
-                                                        <div class="small mb-1">
-                                                            <a href="{{ url_for('main.event_details', event_id=event.id) }}" 
-                                                               class="text-decoration-none" onclick="event.stopPropagation();">
-                                                                <div class="badge bg-{{ 'success' if event.category == 'technical' else 'info' if event.category == 'workshop' else 'warning' if event.category == 'cultural' else 'secondary' }} 
-                                                                            text-truncate d-block mb-1" 
-                                                                     style="max-width: 100%;" 
-                                                                     title="{{ event.title }}">
-                                                                    <i class="fas fa-calendar-check me-1"></i>{{ event.time.strftime('%H:%M') }} - {{ event.title[:12] }}{% if event.title|length > 12 %}...{% endif %}
-                                                                </div>
-                                                            </a>
-                                                        </div>
-                                                    {% endfor %}
-                                                    
-                                                    <!-- Personal Tasks -->
-                                                    {% for task in day_tasks[:2] %}
-                                                        <div class="small mb-1">
-                                                            <div class="badge text-truncate d-block mb-1 task-badge" 
-                                                                 style="background-color: {{ task.color or task.priority_color }}; color: white; max-width: 100%;" 
-                                                                 title="{{ task.title }} - {{ task.display_time }}"
-                                                                 onclick="event.stopPropagation(); toggleTaskStatus({{ task.id }})">
-                                                                <i class="fas fa-{{ 'check-circle' if task.is_completed else 'circle' }} me-1"></i>{{ task.display_time }} - {{ task.title[:12] }}{% if task.title|length > 12 %}...{% endif %}
-                                                            </div>
-                                                        </div>
-                                                    {% endfor %}
-                                                    
-                                                    {% if (day_events|length + day_tasks|length) > 4 %}
-                                                        <small class="text-muted">+{{ (day_events|length + day_tasks|length) - 4 }} more</small>
-                                                    {% endif %}
-                                                {% endif %}
-                                            </td>
-                                        {% endfor %}
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-3">
-            <!-- Today's Events -->
-            {% set today_events = todays_events if todays_events else [] %}
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-clock me-2"></i>Today's Events
-                    </h6>
-                </div>
-                <div class="card-body">
-                    {% if today_events %}
-                        {% for event in today_events %}
-                            <div class="mb-3 pb-2 {% if not loop.last %}border-bottom{% endif %}">
-                                <h6 class="mb-1">
-                                    <a href="{{ url_for('main.event_details', event_id=event.id) }}" 
-                                       class="text-decoration-none">{{ event.title }}</a>
-                                </h6>
-                                <small class="text-muted d-block">
-                                    <i class="fas fa-clock me-1"></i>{{ event.time.strftime('%H:%M') }}
-                                </small>
-                                <small class="text-muted d-block">
-                                    <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
-                                </small>
-                                <span class="badge bg-{{ 'success' if event.category == 'technical' else 'info' if event.category == 'workshop' else 'warning' if event.category == 'cultural' else 'secondary' }} mt-1">
-                                    {{ event.category.title() }}
-                                </span>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold fs-6">{{ day }}</span>
+                                {% if day_events or day_tasks %}
+                                    <span class="badge rounded-pill" style="background: var(--primary-gradient); font-size: 0.7rem;">
+                                        {{ (day_events|length) + (day_tasks|length) }}
+                                    </span>
+                                {% endif %}
                             </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-center py-3">
-                            <i class="fas fa-calendar-day text-muted fa-2x mb-2"></i>
-                            <p class="text-muted mb-0">No events today</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Upcoming Events -->
-            {% set upcoming_events = upcoming_events if upcoming_events else [] %}
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-calendar-plus me-2"></i>Upcoming Events
-                    </h6>
-                </div>
-                <div class="card-body">
-                    {% if upcoming_events %}
-                        {% for event in upcoming_events[:5] %}
-                            <div class="mb-3 pb-2 {% if not loop.last %}border-bottom{% endif %}">
-                                <h6 class="mb-1">
+                                                    
+                            <!-- Official Events -->
+                            {% for event in day_events[:2] %}
+                                <div class="mb-1">
                                     <a href="{{ url_for('main.event_details', event_id=event.id) }}" 
-                                       class="text-decoration-none">{{ event.title }}</a>
-                                </h6>
-                                <small class="text-muted d-block">
-                                    <i class="fas fa-calendar me-1"></i>{{ event.date.strftime('%d %b') }}
-                                    <i class="fas fa-clock ms-2 me-1"></i>{{ event.time.strftime('%H:%M') }}
-                                </small>
-                                <small class="text-muted d-block">
-                                    <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
-                                </small>
-                                <div class="mt-1">
-                                    <span class="badge bg-{{ 'success' if event.category == 'technical' else 'info' if event.category == 'workshop' else 'warning' if event.category == 'cultural' else 'secondary' }}">
-                                        {{ event.category.title() }}
-                                    </span>
-                                    <span class="badge bg-light text-dark ms-1">
-                                        {{ event.registered_count }} registered
-                                    </span>
+                                       class="text-decoration-none" onclick="event.stopPropagation();">
+                                        <div class="badge d-block text-start p-1" 
+                                             style="background: var(--success-gradient); color: white; font-size: 0.65rem; border-radius: 4px;" 
+                                             title="{{ event.title }}">
+                                            <i class="fas fa-calendar-check me-1"></i>{{ event.title[:10] }}{% if event.title|length > 10 %}...{% endif %}
+                                        </div>
+                                    </a>
                                 </div>
-                            </div>
-                        {% endfor %}
-                        
-                        {% if upcoming_events|length > 5 %}
-                            <div class="text-center">
-                                <a href="{{ url_for('main.events') }}" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-eye me-1"></i>View All Events
-                                </a>
-                            </div>
+                            {% endfor %}
+                                                    
+                            <!-- Personal Tasks -->
+                            {% for task in day_tasks[:2] %}
+                                <div class="mb-1">
+                                    <div class="badge d-block text-start p-1 task-badge" 
+                                         style="background-color: {{ task.color or task.priority_color }}; color: white; font-size: 0.65rem; border-radius: 4px; cursor: pointer;" 
+                                         title="{{ task.title }} - {{ task.display_time }}"
+                                         onclick="event.stopPropagation(); toggleTaskStatus({{ task.id }})">
+                                        <i class="fas fa-{{ 'check-circle' if task.is_completed else 'circle' }} me-1"></i>{{ task.title[:10] }}{% if task.title|length > 10 %}...{% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                                                    
+                            {% if (day_events|length + day_tasks|length) > 4 %}
+                                <div class="small text-muted mt-1">+{{ (day_events|length + day_tasks|length) - 4 }} more</div>
+                            {% endif %}
                         {% endif %}
-                    {% else %}
-                        <div class="text-center py-3">
-                            <i class="fas fa-calendar-times text-muted fa-2x mb-2"></i>
-                            <p class="text-muted mb-0">No upcoming events</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Legend -->
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-info-circle me-2"></i>Event Categories
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-success me-2">Technical</span>
-                        <small class="text-muted">Tech talks, coding events</small>
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-info me-2">Workshop</span>
-                        <small class="text-muted">Hands-on sessions</small>
-                    </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-warning me-2">Cultural</span>
-                        <small class="text-muted">Arts, music, festivals</small>
-                    </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-secondary me-2">Other</span>
-                        <small class="text-muted">General events</small>
-                    </div>
-                </div>
-            </div>
+                {% endfor %}
+            {% endfor %}
         </div>
     </div>
-
-    <!-- Quick Navigation -->
-    <div class="row mt-4">
-        <div class="col-12 text-center">
-            <div class="btn-group" role="group">
-                <a href="{{ url_for('main.events') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-list me-1"></i>List View
-                </a>
-                <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                </a>
-                <a href="{{ url_for('main.my_events') }}" class="btn btn-outline-success">
-                    <i class="fas fa-user-calendar me-1"></i>My Events
-                </a>
+</div>
+<!-- Today's Events -->
+{% set today_events = todays_events if todays_events else [] %}
+<div class="card mt-3">
+    <div class="card-header">
+        <h5 class="mb-0 d-flex align-items-center">
+            <div class="icon-circle me-3" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                <i class="fas fa-clock"></i>
             </div>
+            Today's Events
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if today_events %}
+            {% for event in today_events %}
+                <div class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold">{{ event.title }}</div>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ event.time.strftime('%H:%M') }}
+                            <i class="fas fa-map-marker-alt ms-2 me-1"></i>{{ event.location }}
+                        </small>
+                        <div class="mt-1">
+                            <span class="badge rounded-pill" style="background: var(--success-gradient); color: white;">{{ event.category.title() }}</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-gradient-primary btn-sm">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="p-4 text-center">
+                <div class="icon-circle mx-auto mb-3" style="background: var(--warning-gradient);">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <h6>No Events Today</h6>
+                <p class="text-muted mb-0">Enjoy your free day!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card-grid card-grid-2 mt-3">
+    <div class="card text-center">
+        <div class="card-body">
+            <div class="icon-circle mx-auto mb-3">
+                <i class="fas fa-tachometer-alt"></i>
+            </div>
+            <h6 class="mb-2">Dashboard</h6>
+            <p class="text-muted small mb-3">View your event overview</p>
+            <a href="{{ url_for('main.dashboard') }}" class="btn-gradient-primary btn-sm">
+                <i class="fas fa-home me-1"></i>Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <div class="card text-center">
+        <div class="card-body">
+            <div class="icon-circle mx-auto mb-3" style="background: var(--secondary-gradient);">
+                <i class="fas fa-calendar-plus"></i>
+            </div>
+            <h6 class="mb-2">All Events</h6>
+            <p class="text-muted small mb-3">Browse and register for events</p>
+            <a href="{{ url_for('main.events') }}" class="btn-gradient-secondary btn-sm">
+                <i class="fas fa-calendar me-1"></i>View Events
+            </a>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </div>

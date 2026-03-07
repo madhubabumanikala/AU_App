@@ -3,214 +3,211 @@
 {% block title %}Attendance - {{ event.title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2>Attendance Management</h2>
-                    <p class="text-muted mb-0">{{ event.title }} - {{ event.date.strftime('%d %B %Y') }}</p>
+<!-- Attendance Management Header -->
+<div class="card slide-up">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle me-3" style="width: 40px; height: 40px;">
+                    <i class="fas fa-clipboard-check"></i>
                 </div>
                 <div>
-                    <a href="{{ url_for('admin.event_details', event_id=event.id) }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>Back to Event
-                    </a>
-                    <button class="btn btn-success ms-2" onclick="markAllPresent()">
-                        <i class="fas fa-check-double me-1"></i>Mark All Present
-                    </button>
+                    <h1 class="display-title mb-0">Attendance Management</h1>
+                    <small class="text-muted">{{ event.title }} • {{ event.date.strftime('%d %b %Y') }}</small>
                 </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('admin.event_details', event_id=event.id) }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back
+                </a>
+                <button class="btn-gradient-success btn-sm" onclick="markAllPresent()">
+                    <i class="fas fa-check-double me-1"></i>Mark All
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Event Info -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-light">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <strong>Date:</strong> {{ event.date.strftime('%d %B %Y') }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Time:</strong> {{ event.time.strftime('%H:%M') }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Location:</strong> {{ event.location }}
-                        </div>
-                        <div class="col-md-3">
-                            <strong>Registered:</strong> {{ registrations|length }} students
-                        </div>
-                    </div>
+    
+    <!-- Event Information -->
+    <div class="card-body">
+        <div class="card-grid card-grid-2 card-grid-4 mb-4">
+            <div class="text-center">
+                <div class="icon-circle mx-auto mb-2" style="background: var(--primary-gradient); width: 40px; height: 40px;">
+                    <i class="fas fa-calendar text-white"></i>
                 </div>
+                <h6 class="mb-1">{{ event.date.strftime('%d %b') }}</h6>
+                <small class="text-muted">Date</small>
             </div>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <h3>{{ registrations|length }}</h3>
-                    <p class="mb-0">Total Registered</p>
+            <div class="text-center">
+                <div class="icon-circle mx-auto mb-2" style="background: var(--success-gradient); width: 40px; height: 40px;">
+                    <i class="fas fa-clock text-white"></i>
                 </div>
+                <h6 class="mb-1">{{ event.time.strftime('%I:%M %p') if event.time else 'All Day' }}</h6>
+                <small class="text-muted">Time</small>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <h3 id="present-count">{{ registrations|selectattr('attendance_status')|list|length }}</h3>
-                    <p class="mb-0">Present</p>
+            <div class="text-center">
+                <div class="icon-circle mx-auto mb-2" style="background: var(--info-gradient); width: 40px; height: 40px;">
+                    <i class="fas fa-map-marker-alt text-white"></i>
                 </div>
+                <h6 class="mb-1">{{ event.location[:10] }}{% if event.location|length > 10 %}...{% endif %}</h6>
+                <small class="text-muted">Location</small>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body text-center">
-                    <h3 id="absent-count">{{ registrations|rejectattr('attendance_status')|list|length }}</h3>
-                    <p class="mb-0">Absent/Unmarked</p>
+            <div class="text-center">
+                <div class="icon-circle mx-auto mb-2" style="background: var(--warning-gradient); width: 40px; height: 40px;">
+                    <i class="fas fa-users text-white"></i>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body text-center">
-                    <h3 id="attendance-percentage">
-                        {% if registrations|length > 0 %}
-                            {{ "%.0f"|format((registrations|selectattr('attendance_status')|list|length / registrations|length) * 100) }}%
-                        {% else %}
-                            0%
-                        {% endif %}
-                    </h3>
-                    <p class="mb-0">Attendance Rate</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Attendance List -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Student Attendance</h5>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="show-present-only">
-                        <label class="form-check-label" for="show-present-only">
-                            Show present only
-                        </label>
-                    </div>
-                </div>
-                <div class="card-body">
-                    {% if registrations %}
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="attendance-table">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>Student ID</th>
-                                        <th>Department</th>
-                                        <th>Year</th>
-                                        <th>Registration Date</th>
-                                        <th>Attendance Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for registration in registrations %}
-                                        <tr data-registration-id="{{ registration.id }}" 
-                                            class="attendance-row {% if registration.attendance_status %}table-success{% endif %}">
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    {% if registration.attendance_status %}
-                                                        <i class="fas fa-check-circle text-success me-2"></i>
-                                                    {% else %}
-                                                        <i class="fas fa-clock text-warning me-2"></i>
-                                                    {% endif %}
-                                                    <div>
-                                                        <strong>{{ registration.student.full_name }}</strong><br>
-                                                        <small class="text-muted">{{ registration.student.email }}</small>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>{{ registration.student.student_id }}</td>
-                                            <td>{{ registration.student.department }}</td>
-                                            <td>{{ registration.student.year }}</td>
-                                            <td>{{ registration.registration_date.strftime('%d %b %Y') }}</td>
-                                            <td>
-                                                {% if registration.attendance_status %}
-                                                    <span class="badge bg-success">Present</span>
-                                                {% else %}
-                                                    <span class="badge bg-warning">Not Marked</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    {% if not registration.attendance_status %}
-                                                        <button class="btn btn-sm btn-success" 
-                                                                onclick="markAttendance({{ registration.id }}, true)">
-                                                            <i class="fas fa-check me-1"></i>Present
-                                                        </button>
-                                                    {% else %}
-                                                        <button class="btn btn-sm btn-warning" 
-                                                                onclick="markAttendance({{ registration.id }}, false)">
-                                                            <i class="fas fa-times me-1"></i>Mark Absent
-                                                        </button>
-                                                    {% endif %}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-user-times text-muted fa-3x mb-3"></i>
-                            <h5 class="text-muted">No registrations found</h5>
-                            <p class="text-muted">No students have registered for this event</p>
-                        </div>
-                    {% endif %}
-                </div>
+                <h6 class="mb-1">{{ registrations|length }}</h6>
+                <small class="text-muted">Registered</small>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Attendance Statistics -->
+<div class="card-grid card-grid-2 card-grid-4 mb-4">
+    <div class="card text-center" style="background: var(--primary-gradient); color: white;">
+        <div class="card-body">
+            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 48px; height: 48px;">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3 class="mb-1">{{ registrations|length }}</h3>
+            <p class="mb-0 small opacity-75">Total Registered</p>
+        </div>
+    </div>
+    
+    <div class="card text-center" style="background: var(--success-gradient); color: white;">
+        <div class="card-body">
+            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 48px; height: 48px;">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3 class="mb-1" id="present-count">{{ registrations|selectattr('attendance_status')|list|length }}</h3>
+            <p class="mb-0 small opacity-75">Present</p>
+        </div>
+    </div>
+    
+    <div class="card text-center" style="background: var(--warning-gradient); color: white;">
+        <div class="card-body">
+            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 48px; height: 48px;">
+                <i class="fas fa-times"></i>
+            </div>
+            <h3 class="mb-1" id="absent-count">{{ registrations|rejectattr('attendance_status')|list|length }}</h3>
+            <p class="mb-0 small opacity-75">Absent/Unmarked</p>
+        </div>
+    </div>
+    
+    <div class="card text-center" style="background: var(--info-gradient); color: white;">
+        <div class="card-body">
+            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 48px; height: 48px;">
+                <i class="fas fa-percentage"></i>
+            </div>
+            <h3 class="mb-1" id="attendance-percentage">
+                {% if registrations|length > 0 %}
+                    {{ "%.0f"|format((registrations|selectattr('attendance_status')|list|length / registrations|length) * 100) }}%
+                {% else %}
+                    0%
+                {% endif %}
+            </h3>
+            <p class="mb-0 small opacity-75">Attendance Rate</p>
+        </div>
+    </div>
+</div>
+
+<!-- Student Attendance List -->
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle me-3" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h5 class="mb-0">Student Attendance</h5>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="show-present-only">
+                <label class="form-check-label" for="show-present-only">
+                    <small>Present only</small>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if registrations %}
+            {% for registration in registrations %}
+                <div class="list-group-item attendance-row {% if registration.attendance_status %}border-start border-success border-3{% endif %}" 
+                     data-registration-id="{{ registration.id }}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-center flex-grow-1">
+                            <div class="icon-circle me-3" style="background: {% if registration.attendance_status %}var(--success-gradient){% else %}var(--secondary-gradient){% endif %}; width: 48px; height: 48px; font-size: 1.2rem;">
+                                {% if registration.attendance_status %}
+                                    <i class="fas fa-check text-white"></i>
+                                {% else %}
+                                    {{ registration.student.first_name[0] if registration.student.first_name else 'S' }}
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ registration.student.full_name }}</h6>
+                                <p class="mb-1 small text-muted">{{ registration.student.student_id }} • {{ registration.student.department }} • Year {{ registration.student.year or 'N/A' }}</p>
+                                <p class="mb-0 small text-muted">
+                                    <i class="fas fa-calendar me-1"></i>Registered: {{ registration.registration_date.strftime('%d %b %Y') }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-end ms-3">
+                            <div class="mb-2">
+                                {% if registration.attendance_status %}
+                                    <span class="badge bg-success">Present</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Not Marked</span>
+                                {% endif %}
+                            </div>
+                            <button class="btn btn-sm {% if registration.attendance_status %}btn-outline-warning{% else %}btn-gradient-success{% endif %}" 
+                                    onclick="toggleAttendance({{ registration.id }})">
+                                {% if registration.attendance_status %}
+                                    <i class="fas fa-times me-1"></i>Mark Absent
+                                {% else %}
+                                    <i class="fas fa-check me-1"></i>Mark Present
+                                {% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="card-body text-center py-5">
+                <div class="icon-circle mx-auto mb-3" style="background: var(--light-bg); width: 64px; height: 64px; font-size: 1.5rem;">
+                    <i class="fas fa-user-times text-muted"></i>
+                </div>
+                <h6 class="text-muted">No Registrations</h6>
+                <p class="text-muted small mb-0">No students have registered for this event yet</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
 <script>
-function markAttendance(registrationId, isPresent) {
-    fetch(`/admin/attendance/mark/${registrationId}`, {
+function toggleAttendance(registrationId) {
+    fetch(`/admin/toggle_attendance/${registrationId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
-        },
-        body: JSON.stringify({ attendance_status: isPresent })
+        }
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             location.reload();
         } else {
-            alert('Error updating attendance: ' + data.message);
+            alert('Error updating attendance');
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error updating attendance');
     });
 }
 
 function markAllPresent() {
-    if (confirm('Mark all registered students as present?')) {
-        const eventId = {{ event.id }};
-        fetch(`/admin/events/${eventId}/mark-all-present`, {
+    if (confirm('Mark all students as present?')) {
+        fetch(`/admin/mark_all_present/{{ event.id }}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
             }
         })
         .then(response => response.json())
@@ -218,24 +215,17 @@ function markAllPresent() {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error marking attendance: ' + data.message);
+                alert('Error marking all present');
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error marking attendance');
         });
     }
 }
 
-// Filter functionality
 document.getElementById('show-present-only').addEventListener('change', function() {
     const rows = document.querySelectorAll('.attendance-row');
-    const showPresentOnly = this.checked;
-    
     rows.forEach(row => {
-        const isPresent = row.classList.contains('table-success');
-        if (showPresentOnly && !isPresent) {
+        const isPresent = row.querySelector('.badge.bg-success');
+        if (this.checked && !isPresent) {
             row.style.display = 'none';
         } else {
             row.style.display = '';

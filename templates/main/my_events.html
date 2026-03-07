@@ -3,101 +3,148 @@
 {% block title %}My Events - AU Event System{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2>
-                <i class="fas fa-user-calendar text-primary me-2"></i>My Events
-            </h2>
+<!-- My Events Header -->
+<div class="card slide-up">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle me-3" style="width: 40px; height: 40px;">
+                    <i class="fas fa-user-calendar"></i>
+                </div>
+                <div>
+                    <h1 class="display-title mb-0">My Events</h1>
+                    <small class="text-muted">Your registered and attended events</small>
+                </div>
+            </div>
+            <a href="{{ url_for('main.events') }}" class="btn-gradient-primary btn-sm">
+                <i class="fas fa-plus me-2"></i>Browse Events
+            </a>
         </div>
     </div>
 
-    <!-- Filter Tabs -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="btn-group" role="group">
-                        <a href="{{ url_for('main.my_events') }}" 
-                           class="btn {% if not current_status %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                            <i class="fas fa-calendar-alt me-1"></i>All Events
-                        </a>
-                        <a href="{{ url_for('main.my_events', status='upcoming') }}" 
-                           class="btn {% if current_status == 'upcoming' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                            <i class="fas fa-calendar-plus me-1"></i>Upcoming
-                        </a>
-                        <a href="{{ url_for('main.my_events', status='past') }}" 
-                           class="btn {% if current_status == 'past' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                            <i class="fas fa-history me-1"></i>Past Events
-                        </a>
-                        <a href="{{ url_for('main.my_events', status='attended') }}" 
-                           class="btn {% if current_status == 'attended' %}btn-success{% else %}btn-outline-success{% endif %}">
-                            <i class="fas fa-check-circle me-1"></i>Attended
+    
+    <!-- Event Filters -->
+    <div class="card-body">
+        <div class="card-grid card-grid-2 card-grid-4">
+            <a href="{{ url_for('main.my_events') }}" 
+               class="btn {% if not current_status %}btn-gradient-primary{% else %}btn-outline-primary{% endif %} d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-calendar-alt me-2"></i>All Events
+            </a>
+            <a href="{{ url_for('main.my_events', status='upcoming') }}" 
+               class="btn {% if current_status == 'upcoming' %}btn-gradient-primary{% else %}btn-outline-primary{% endif %} d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-calendar-plus me-2"></i>Upcoming
+            </a>
+            <a href="{{ url_for('main.my_events', status='past') }}" 
+               class="btn {% if current_status == 'past' %}btn-gradient-primary{% else %}btn-outline-primary{% endif %} d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-history me-2"></i>Past Events
+            </a>
+            <a href="{{ url_for('main.my_events', status='attended') }}" 
+               class="btn {% if current_status == 'attended' %}btn-gradient-success{% else %}btn-outline-success{% endif %} d-flex align-items-center justify-content-center py-3">
+                <i class="fas fa-check-circle me-2"></i>Attended
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- My Events List -->
+{% if registrations.items %}
+    {% for registration in registrations.items %}
+        {% set event = registration.event %}
+        <div class="card mt-3 fade-in">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-start flex-grow-1">
+                        {% if event.poster_image %}
+                            <img src="{{ url_for('static', filename='uploads/' + event.poster_image) }}" 
+                                 class="rounded me-3" style="width: 64px; height: 64px; object-fit: cover;" 
+                                 alt="{{ event.title }}">
+                        {% else %}
+                            <div class="icon-circle me-3" style="background: var(--primary-gradient); width: 64px; height: 64px; font-size: 1.5rem;">
+                                <i class="fas fa-calendar-alt text-white"></i>
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <h5 class="mb-2">{{ event.title }}</h5>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge rounded-pill" style="background: var(--info-gradient); color: white;">{{ event.category.title() }}</span>
+                                <span class="badge bg-secondary">{{ event.department }}</span>
+                                {% if registration.attendance_status %}
+                                    <span class="badge bg-success">Attended</span>
+                                {% elif event.date < today %}
+                                    <span class="badge bg-secondary">Past Event</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Upcoming</span>
+                                {% endif %}
+                            </div>
+                            <p class="mb-2 text-muted small">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
+                            <div class="d-flex align-items-center gap-3 text-muted small">
+                                <span><i class="fas fa-calendar me-1"></i>{{ event.date.strftime('%d %b %Y') }}</span>
+                                <span><i class="fas fa-clock me-1"></i>{{ event.time.strftime('%I:%M %p') if event.time else 'All Day' }}</span>
+                                <span><i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end ms-3">
+                        <small class="text-muted d-block mb-2">Registered</small>
+                        <div class="fw-semibold small mb-3">{{ registration.registration_date.strftime('%d %b %Y') }}</div>
+                        <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i>View Details
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+    {% endfor %}
+{% else %}
+    <div class="card mt-3">
+        <div class="card-body text-center py-5">
+            <div class="icon-circle mx-auto mb-3" style="background: var(--light-bg); width: 64px; height: 64px; font-size: 1.5rem;">
+                <i class="fas fa-calendar-times text-muted"></i>
+            </div>
+            <h6 class="text-muted">No Events Found</h6>
+            <p class="text-muted small mb-3">You haven't registered for any events yet</p>
+            <a href="{{ url_for('main.events') }}" class="btn-gradient-primary">
+                <i class="fas fa-search me-2"></i>Browse Events
+            </a>
+        </div>
     </div>
+{% endif %}
 
-    <!-- Events List -->
-    <div class="row">
-        <div class="col-12">
-            {% if registrations.items %}
-                <div class="row">
-                    {% for registration in registrations.items %}
-                        {% set event = registration.event %}
-                        <div class="col-lg-6 mb-4">
-                            <div class="card h-100 shadow-sm {% if registration.attendance_status %}border-success{% endif %}">
-                                {% if event.poster_image %}
-                                    <img src="{{ url_for('static', filename='uploads/' + event.poster_image) }}" 
-                                         class="card-img-top" style="height: 150px; object-fit: cover;" 
-                                         alt="{{ event.title }}">
-                                {% endif %}
-                                
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">{{ event.title }}</h5>
-                                    <p class="card-text">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
-                                    
-                                    <!-- Event Details -->
-                                    <div class="mb-3">
-                                        <small class="text-muted d-block">
-                                            <i class="fas fa-calendar me-1"></i>{{ event.date.strftime('%A, %B %d, %Y') }}
-                                        </small>
-                                        <small class="text-muted d-block">
-                                            <i class="fas fa-clock me-1"></i>{{ event.time.strftime('%H:%M') }}
-                                        </small>
-                                        <small class="text-muted d-block">
-                                            <i class="fas fa-map-marker-alt me-1"></i>{{ event.location }}
-                                        </small>
-                                        <small class="text-muted d-block">
-                                            <i class="fas fa-building me-1"></i>{{ event.department }}
-                                        </small>
-                                    </div>
-                                    
-                                    <!-- Status Badges -->
-                                    <div class="mb-3">
-                                        <span class="badge bg-primary">{{ event.category.title() }}</span>
-                                        
-                                        {% if registration.attendance_status %}
-                                            <span class="badge bg-success ms-1">Attended</span>
-                                        {% elif event.date < today %}
-                                            <span class="badge bg-secondary ms-1">Past Event</span>
-                                        {% else %}
-                                            <span class="badge bg-warning ms-1">Upcoming</span>
-                                        {% endif %}
-                                        
-                                        {% if registration.qr_code_path %}
-                                            <span class="badge bg-info ms-1">QR Available</span>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <!-- Registration Info -->
-                                    <div class="small text-muted mb-3">
-                                        <strong>Registered:</strong> {{ registration.registration_date.strftime('%B %d, %Y at %H:%M') }}
-                                    </div>
-                                    
+<!-- Mobile-First Pagination -->
+{% if registrations.pages > 1 %}
+    <div class="card mt-3">
+        <div class="card-body">
+            <nav aria-label="My events pagination">
+                <div class="d-flex justify-content-between align-items-center">
+                    {% if registrations.has_prev %}
+                        <a href="?page={{ registrations.prev_num }}{% if current_status %}&status={{ current_status }}{% endif %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-chevron-left me-2"></i>Previous
+                        </a>
+                    {% else %}
+                        <span class="btn btn-outline-secondary btn-sm disabled">
+                            <i class="fas fa-chevron-left me-2"></i>Previous
+                        </span>
+                    {% endif %}
+                    
+                    <div class="d-flex align-items-center gap-2">
+                        <small class="text-muted">Page {{ registrations.page }} of {{ registrations.pages }}</small>
+                    </div>
+                    
+                    {% if registrations.has_next %}
+                        <a href="?page={{ registrations.next_num }}{% if current_status %}&status={{ current_status }}{% endif %}" class="btn btn-outline-primary btn-sm">
+                            Next<i class="fas fa-chevron-right ms-2"></i>
+                        </a>
+                    {% else %}
+                        <span class="btn btn-outline-secondary btn-sm disabled">
+                            Next<i class="fas fa-chevron-right ms-2"></i>
+                        </span>
+                    {% endif %}
+                </div>
+            </nav>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
                                     <!-- Actions -->
                                     <div class="mt-auto">
                                         <div class="d-grid gap-2">

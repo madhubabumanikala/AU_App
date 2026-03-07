@@ -3,201 +3,144 @@
 {% block title %}{{ event.title }} - Event Details{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2>{{ event.title }}</h2>
-                    <p class="text-muted mb-0">{{ event.department }} - {{ event.category.title() }}</p>
+<!-- Admin Event Details Header -->
+<div class="card slide-up">
+    {% if event.poster_image %}
+        <img src="{{ url_for('static', filename='uploads/' + event.poster_image) }}" 
+             class="w-100 rounded-top" style="height: 200px; object-fit: cover;" 
+             alt="{{ event.title }}">
+    {% else %}
+        <div class="d-flex align-items-center justify-content-center rounded-top" 
+             style="height: 200px; background: var(--primary-gradient);">
+            <div class="icon-circle" style="background: rgba(255,255,255,0.2); width: 64px; height: 64px; font-size: 1.5rem;">
+                <i class="fas fa-calendar-alt text-white"></i>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="display-title mb-2">{{ event.title }}</h1>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge rounded-pill" style="background: var(--info-gradient); color: white;">{{ event.category.title() }}</span>
+                    <span class="badge bg-secondary">{{ event.department }}</span>
                 </div>
-                <div>
-                    <a href="{{ url_for('admin.edit_event', event_id=event.id) }}" class="btn btn-warning">
-                        <i class="fas fa-edit me-1"></i>Edit Event
-                    </a>
-                    <a href="{{ url_for('admin.attendance', event_id=event.id) }}" class="btn btn-success ms-2">
-                        <i class="fas fa-clipboard-check me-1"></i>Attendance
-                    </a>
-                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('admin.edit_event', event_id=event.id) }}" class="btn-gradient-warning btn-sm">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+                <a href="{{ url_for('admin.attendance', event_id=event.id) }}" class="btn-gradient-success btn-sm">
+                    <i class="fas fa-clipboard-check me-1"></i>Attendance
+                </a>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Event Information -->
-        <div class="col-lg-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Event Information</h5>
+    
+    <div class="card-body">
+        <!-- Event Meta Information -->
+        <div class="card-grid card-grid-2 card-grid-4 mb-4">
+            <div class="text-center">
+                <div class="icon-circle mx-auto mb-2" style="background: var(--primary-gradient); width: 40px; height: 40px;">
+                    <i class="fas fa-calendar text-white"></i>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Date:</strong> {{ event.date.strftime('%A, %d %B %Y') }}</p>
-                            <p><strong>Time:</strong> {{ event.time.strftime('%H:%M') }}</p>
-                            <p><strong>Location:</strong> {{ event.location }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Department:</strong> {{ event.department }}</p>
-                            <p><strong>Category:</strong> {{ event.category.title() }}</p>
-                            <p><strong>Created:</strong> {{ event.created_at.strftime('%d %b %Y') }}</p>
-                        </div>
-                    </div>
-                    <hr>
-                    <h6>Description</h6>
-                    <p>{{ event.description }}</p>
-                </div>
+                <h6 class="mb-1">{{ event.date.strftime('%d') }}</h6>
+                <small class="text-muted">{{ event.date.strftime('%b %Y') }}</small>
             </div>
-
-            <!-- Registrations -->
-            <div class="card shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Registrations ({{ registrations|length }})</h5>
-                    {% if event.max_participants %}
-                        <span class="badge bg-info">{{ registrations|length }} / {{ event.max_participants }}</span>
-                    {% endif %}
+            <div class="text-center">
+                <div class="icon-circle mx-auto mb-2" style="background: var(--success-gradient); width: 40px; height: 40px;">
+                    <i class="fas fa-clock text-white"></i>
                 </div>
-                <div class="card-body">
-                    {% if registrations %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>Department</th>
-                                        <th>Registration Date</th>
-                                        <th>Attendance</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for registration in registrations %}
-                                        <tr>
-                                            <td>
-                                                <strong>{{ registration.student.full_name }}</strong><br>
-                                                <small class="text-muted">{{ registration.student.student_id }}</small>
-                                            </td>
-                                            <td>{{ registration.student.department }}</td>
-                                            <td>{{ registration.registration_date.strftime('%d %b %Y %H:%M') }}</td>
-                                            <td>
-                                                {% if registration.attendance_status %}
-                                                    <span class="badge bg-success">Present</span>
-                                                {% else %}
-                                                    <span class="badge bg-warning">Not Marked</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{{ url_for('admin.student_details', student_id=registration.student.id) }}" 
-                                                   class="btn btn-sm btn-outline-primary">View</a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-user-times text-muted fa-3x mb-3"></i>
-                            <p class="text-muted">No registrations yet</p>
-                        </div>
-                    {% endif %}
+                <h6 class="mb-1">{{ event.time.strftime('%I:%M %p') if event.time else 'All Day' }}</h6>
+                <small class="text-muted">Time</small>
+            </div>
+            <div class="text-center">
+                <div class="icon-circle mx-auto mb-2" style="background: var(--info-gradient); width: 40px; height: 40px;">
+                    <i class="fas fa-map-marker-alt text-white"></i>
                 </div>
+                <h6 class="mb-1">{{ event.location[:15] }}{% if event.location|length > 15 %}...{% endif %}</h6>
+                <small class="text-muted">Location</small>
+            </div>
+            <div class="text-center">
+                <div class="icon-circle mx-auto mb-2" style="background: var(--warning-gradient); width: 40px; height: 40px;">
+                    <i class="fas fa-users text-white"></i>
+                </div>
+                <h6 class="mb-1">{{ event.registered_count or 0 }}</h6>
+                <small class="text-muted">Registered</small>
             </div>
         </div>
+        
+        <!-- Event Description -->
+        <div class="mb-4">
+            <h5 class="mb-3">Description</h5>
+            <p class="text-muted">{{ event.description }}</p>
+        </div>
+    </div>
+</div>
 
-        <!-- Statistics & Actions -->
-        <div class="col-lg-4">
-            <!-- Statistics -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0">Statistics</h6>
+<!-- Event Registrations -->
+<div class="card mt-3">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle me-3" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                    <i class="fas fa-users"></i>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-3">
-                        <span>Total Registrations:</span>
-                        <strong>{{ event.registered_count }}</strong>
-                    </div>
-                    {% if event.max_participants %}
-                        <div class="d-flex justify-content-between mb-3">
-                            <span>Available Slots:</span>
-                            <strong>{{ event.available_slots }}</strong>
-                        </div>
-                    {% endif %}
-                    <div class="d-flex justify-content-between mb-3">
-                        <span>Attendance Marked:</span>
-                        <strong>{{ registrations|selectattr('attendance_status')|list|length }}</strong>
-                    </div>
-                    {% if feedbacks %}
-                        <div class="d-flex justify-content-between">
-                            <span>Average Rating:</span>
-                            <strong>{{ "%.1f"|format(event.average_rating) }}/5</strong>
-                        </div>
-                    {% endif %}
-                </div>
+                <h5 class="mb-0">Registrations ({{ registrations|length }})</h5>
             </div>
-
-            <!-- Status -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0">Status</h6>
-                </div>
-                <div class="card-body">
-                    {% if event.is_active %}
-                        {% if event.is_upcoming %}
-                            <span class="badge bg-success fs-6">Active & Upcoming</span>
-                        {% else %}
-                            <span class="badge bg-info fs-6">Active & Completed</span>
-                        {% endif %}
-                    {% else %}
-                        <span class="badge bg-danger fs-6">Inactive</span>
-                    {% endif %}
-                    
-                    {% if event.is_full %}
-                        <br><span class="badge bg-warning text-dark mt-2">Event Full</span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Recent Feedbacks -->
-            {% if feedbacks %}
-                <div class="card shadow-sm">
-                    <div class="card-header">
-                        <h6 class="mb-0">Recent Feedback</h6>
+            {% if event.max_participants %}
+                <div class="d-flex align-items-center gap-2">
+                    <div class="progress" style="width: 100px; height: 8px;">
+                        {% set percentage = (registrations|length / event.max_participants) * 100 %}
+                        <div class="progress-bar" style="width: {{ percentage }}%"></div>
                     </div>
-                    <div class="card-body">
-                        {% for feedback in feedbacks[:3] %}
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <small class="text-muted">{{ feedback.student.full_name }}</small>
-                                    {% if feedback.rating %}
-                                        <div>
-                                            {% for i in range(1, 6) %}
-                                                {% if i <= feedback.rating %}
-                                                    <i class="fas fa-star text-warning"></i>
-                                                {% else %}
-                                                    <i class="far fa-star text-muted"></i>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                {% if feedback.comments %}
-                                    <p class="small mb-0">{{ feedback.comments[:100] }}{% if feedback.comments|length > 100 %}...{% endif %}</p>
-                                {% endif %}
-                            </div>
-                            {% if not loop.last %}<hr>{% endif %}
-                        {% endfor %}
-                        
-                        {% if feedbacks|length > 3 %}
-                            <div class="text-center mt-3">
-                                <small class="text-muted">And {{ feedbacks|length - 3 }} more feedback(s)</small>
-                            </div>
-                        {% endif %}
-                    </div>
+                    <span class="badge bg-info">{{ registrations|length }} / {{ event.max_participants }}</span>
                 </div>
+            {% else %}
+                <span class="badge bg-primary">{{ registrations|length }} registered</span>
             {% endif %}
         </div>
+    </div>
+    <div class="card-body p-0">
+        {% if registrations %}
+            {% for registration in registrations %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-circle me-3" style="background: var(--secondary-gradient); width: 40px; height: 40px; font-size: 1rem;">
+                                {{ registration.student.first_name[0] if registration.student.first_name else 'S' }}
+                            </div>
+                            <div>
+                                <h6 class="mb-1">{{ registration.student.full_name }}</h6>
+                                <p class="mb-1 small text-muted">{{ registration.student.student_id }} • {{ registration.student.department }}</p>
+                                <p class="mb-0 small text-muted">Registered: {{ registration.registration_date.strftime('%d %b %Y') }}</p>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="mb-2">
+                                {% if registration.attendance_status %}
+                                    <span class="badge bg-success">Present</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Not Marked</span>
+                                {% endif %}
+                            </div>
+                            <a href="{{ url_for('admin.student_details', student_id=registration.student.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="icon-circle mx-auto mb-3" style="background: var(--light-bg); width: 64px; height: 64px; font-size: 1.5rem;">
+                <i class="fas fa-user-times text-muted"></i>
+            </div>
+            <h6 class="text-muted">No Registrations Yet</h6>
+            <p class="text-muted small mb-0">Students will appear here once they register</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
