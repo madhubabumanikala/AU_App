@@ -94,7 +94,7 @@ def create_post():
                 media_thumbnail=media_thumbnail,
                 author_id=current_user.id,
                 author_type=current_user.__class__.__name__.lower(),
-                event_id=event_id,
+                event_id=event_id if event_id else None,
                 visibility=visibility
             )
             
@@ -105,7 +105,7 @@ def create_post():
                 return jsonify({
                     'success': True, 
                     'message': 'Post created successfully!',
-                    'post': post.to_dict()
+                    'post_id': post.id
                 })
             
             flash('Post created successfully!', 'success')
@@ -113,9 +113,12 @@ def create_post():
             
         except Exception as e:
             db.session.rollback()
+            current_app.logger.error(f"Error creating post: {str(e)}")
+            error_msg = f"Error creating post: {str(e)}"
+            
             if request.is_json:
-                return jsonify({'success': False, 'message': 'Error creating post'})
-            flash('Error creating post', 'error')
+                return jsonify({'success': False, 'message': error_msg})
+            flash(error_msg, 'error')
             return redirect(url_for('social.create_post'))
     
     # GET request - show create post form

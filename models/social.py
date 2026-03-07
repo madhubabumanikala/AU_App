@@ -16,8 +16,8 @@ class Post(db.Model):
     media_url = db.Column(db.String(255), nullable=True)
     media_thumbnail = db.Column(db.String(255), nullable=True)
     
-    # Author information
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    # Author information (polymorphic - can be student or admin)
+    author_id = db.Column(db.Integer, nullable=False)
     author_type = db.Column(db.String(20), nullable=False)  # student, admin
     
     # Event relationship (optional - for event-related posts)

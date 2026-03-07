@@ -32,6 +32,15 @@ class MobileDetector:
         # Check for small screen size hint (if provided)
         if 'Mobile' in request.headers.get('User-Agent', ''):
             return True
+        
+        # Force mobile for development/testing - check query parameter
+        if request.args.get('mobile', '').lower() == 'true':
+            return True
+            
+        # Check for mobile viewport or small screen indicators
+        screen_width = request.args.get('width', type=int)
+        if screen_width and screen_width <= 768:
+            return True
             
         return False
     

@@ -45,6 +45,7 @@ class Student(User):
     
     def get_upcoming_events(self):
         from .event import Event, EventRegistration
+        from datetime import datetime
         return Event.query.join(EventRegistration).filter(
             EventRegistration.student_id == self.id,
             Event.date >= datetime.utcnow().date()
@@ -52,6 +53,7 @@ class Student(User):
     
     def get_recommended_events(self, limit=5):
         from .event import Event
+        from datetime import datetime
         # Simple recommendation based on department
         return Event.query.filter(
             Event.department == self.department,

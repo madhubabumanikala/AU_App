@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from models.event import Event, EventRegistration
+from models.event import Event, EventRegistration, EventFeedback
 from models.user import Student, Admin
 from models.notification import Notification
 from extensions import db
@@ -188,7 +188,7 @@ def my_events():
     page = request.args.get('page', 1, type=int)
     status = request.args.get('status', 'upcoming')  # upcoming, past, all
     
-    query = current_user.event_registrations.join(Event)
+    query = EventRegistration.query.filter_by(student_id=current_user.id).join(Event)
     
     if status == 'upcoming':
         query = query.filter(Event.date >= datetime.utcnow().date())

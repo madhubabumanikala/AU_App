@@ -4,10 +4,14 @@ Media Upload and Handling Utility
 import os
 import uuid
 from werkzeug.utils import secure_filename
-from PIL import Image, ImageOps
+try:
+    from PIL import Image, ImageOps
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
 import mimetypes
 from flask import current_app
-import magic
+# import magic  # Optional - only if python-magic is installed
 
 class MediaHandler:
     """Handle media uploads, processing, and validation"""
@@ -164,6 +168,9 @@ class MediaHandler:
     @classmethod
     def _create_image_thumbnail(cls, image_path):
         """Create thumbnail for image"""
+        if not PIL_AVAILABLE:
+            return None
+            
         try:
             # Create thumbnail directory
             thumb_dir = os.path.join(os.path.dirname(image_path), 'thumbnails')
