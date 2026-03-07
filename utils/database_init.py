@@ -15,8 +15,11 @@ logger = logging.getLogger(__name__)
 def init_database():
     """Initialize database with all required tables and default data"""
     try:
-        # Create all tables from models
+        # Create all tables from models first
         db.create_all()
+        
+        # Handle any missing columns in existing tables
+        migrate_existing_database()
         
         # Check and create additional tables not in models
         create_additional_tables()
@@ -27,10 +30,12 @@ def init_database():
         # Commit all changes
         db.session.commit()
         
+        print("✅ Database initialization completed successfully")
         logger.info("Database initialization completed successfully")
         return True
         
     except Exception as e:
+        print(f"❌ Database initialization failed: {e}")
         logger.error(f"Database initialization failed: {e}")
         db.session.rollback()
         return False
@@ -38,56 +43,59 @@ def init_database():
 def create_additional_tables():
     """Create additional tables that might not be in SQLAlchemy models"""
     
-    # Create post_likes table
-    db.engine.execute(text("""
-        CREATE TABLE IF NOT EXISTS post_likes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            post_id INTEGER NOT NULL,
-            user_id INTEGER NOT NULL,
-            user_type VARCHAR(20) NOT NULL DEFAULT 'student',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-            UNIQUE(post_id, user_id, user_type)
-        )
-    """))
-    
-    # Create post_comments table
-    db.engine.execute(text("""
-        CREATE TABLE IF NOT EXISTS post_comments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            post_id INTEGER NOT NULL,
-            author_id INTEGER NOT NULL,
-            author_type VARCHAR(20) NOT NULL DEFAULT 'student',
-            content TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            is_active BOOLEAN DEFAULT 1,
-            FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
-        )
-    """))
-    
-    # Create post_shares table
-    db.engine.execute(text("""
-        CREATE TABLE IF NOT EXISTS post_shares (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            post_id INTEGER NOT NULL,
-            user_id INTEGER NOT NULL,
-            user_type VARCHAR(20) NOT NULL DEFAULT 'student',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
-        )
-    """))
-    
-    # Create indexes for performance
-    try:
-        db.engine.execute(text("CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id, author_type)"))
-        db.engine.execute(text("CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at)"))
-        db.engine.execute(text("CREATE INDEX IF NOT EXISTS idx_posts_is_active ON posts(is_active)"))
-        db.engine.execute(text("CREATE INDEX IF NOT EXISTS idx_post_likes_post_id ON post_likes(post_id)"))
-        db.engine.execute(text("CREATE INDEX IF NOT EXISTS idx_post_comments_post_id ON post_comments(post_id)"))
-        db.engine.execute(text("CREATE INDEX IF NOT EXISTS idx_post_shares_post_id ON post_shares(post_id)"))
-    except Exception as e:
-        # Indexes might already exist, that's okay
-        logger.debug(f"Index creation warning (likely already exists): {e}")
+    with db.engine.connect() as conn:
+        # Create post_likes table
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS post_likes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                post_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                user_type VARCHAR(20) NOT NULL DEFAULT 'student',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+                UNIQUE(post_id, user_id, user_type)
+            )
+        """))
+        
+        # Create post_comments table
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS post_comments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                post_id INTEGER NOT NULL,
+                author_id INTEGER NOT NULL,
+                author_type VARCHAR(20) NOT NULL DEFAULT 'student',
+                content TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_active BOOLEAN DEFAULT 1,
+                FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+            )
+        """))
+        
+        # Create post_shares table
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS post_shares (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                post_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                user_type VARCHAR(20) NOT NULL DEFAULT 'student',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+            )
+        """))
+        
+        # Create indexes for performance
+        try:
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id, author_type)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_posts_is_active ON posts(is_active)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_post_likes_post_id ON post_likes(post_id)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_post_comments_post_id ON post_comments(post_id)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_post_shares_post_id ON post_shares(post_id)"))
+        except Exception as e:
+            # Indexes might already exist, that's okay
+            logger.debug(f"Index creation warning (likely already exists): {e}")
+        
+        conn.commit()
 
 def create_default_admin():
     """Create default admin account if it doesn't exist"""
@@ -131,27 +139,30 @@ def check_database_health():
 def migrate_existing_database():
     """Handle migration of existing databases"""
     try:
-        # Check if posts table has all required columns
-        result = db.engine.execute(text("PRAGMA table_info(posts)")).fetchall()
-        columns = [row[1] for row in result] if result else []
-        
-        # Add missing columns if needed
-        required_columns = [
-            'is_university_post', 'is_announcement', 'is_pinned',
-            'likes_count', 'comments_count', 'shares_count',
-            'visibility', 'views_count'
-        ]
-        
-        for column in required_columns:
-            if column not in columns:
-                if 'count' in column:
-                    db.engine.execute(text(f"ALTER TABLE posts ADD COLUMN {column} INTEGER DEFAULT 0"))
-                elif column == 'visibility':
-                    db.engine.execute(text(f"ALTER TABLE posts ADD COLUMN {column} VARCHAR(20) DEFAULT 'public'"))
-                else:
-                    db.engine.execute(text(f"ALTER TABLE posts ADD COLUMN {column} BOOLEAN DEFAULT 0"))
-                
-                logger.info(f"Added missing column: {column}")
+        with db.engine.connect() as conn:
+            # Check if posts table has all required columns
+            result = conn.execute(text("PRAGMA table_info(posts)")).fetchall()
+            columns = [row[1] for row in result] if result else []
+            
+            # Add missing columns if needed
+            required_columns = [
+                'is_university_post', 'is_announcement', 'is_pinned',
+                'likes_count', 'comments_count', 'shares_count',
+                'visibility', 'views_count'
+            ]
+            
+            for column in required_columns:
+                if column not in columns:
+                    if 'count' in column:
+                        conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} INTEGER DEFAULT 0"))
+                    elif column == 'visibility':
+                        conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} VARCHAR(20) DEFAULT 'public'"))
+                    else:
+                        conn.execute(text(f"ALTER TABLE posts ADD COLUMN {column} BOOLEAN DEFAULT 0"))
+                    
+                    logger.info(f"Added missing column: {column}")
+            
+            conn.commit()
         
         return True
         
