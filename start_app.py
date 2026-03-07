@@ -214,6 +214,9 @@ def main():
     else:
         print("\n❌ System checks failed!")
         show_troubleshooting()
+        print("\n" + "=" * 60)
+        print("Press Enter to close this window...")
+        input()
         return 1
     
     return 0
