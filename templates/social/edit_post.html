@@ -119,7 +119,7 @@
                     <option value="public" {{ 'selected' if post.visibility == 'public' else '' }}>
                         <i class="fas fa-globe"></i> Public - Everyone can see this post
                     </option>
-                    {% if hasattr(post.author, 'department') %}
+                    {% if post.author and post.author.__class__.__name__ == 'Student' %}
                     <option value="department" {{ 'selected' if post.visibility == 'department' else '' }}>
                         <i class="fas fa-building"></i> Department Only - Only {{ post.author.department }} members can see this
                     </option>

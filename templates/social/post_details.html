@@ -215,7 +215,7 @@
                         <h6>{{ post.author.first_name }} {{ post.author.last_name if post.author else 'Unknown User' }}</h6>
                         <small>
                             <i class="fas fa-graduation-cap me-1"></i>
-                            {{ post.author.department if post.author and hasattr(post.author, 'department') else post.author_type.title() }}
+                            {{ post.author.department if post.author and post.author.__class__.__name__ == 'Student' else post.author_type.title() }}
                             •
                             <i class="fas fa-clock me-1"></i>
                             {{ post.created_at.strftime('%d %b %Y, %I:%M %p') }}

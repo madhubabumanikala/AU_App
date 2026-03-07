@@ -169,7 +169,7 @@
                     <h6 class="mb-0">{{ current_user.first_name }} {{ current_user.last_name }}</h6>
                     <small class="text-muted">
                         <i class="fas fa-graduation-cap me-1"></i>
-                        {{ current_user.department if hasattr(current_user, 'department') else current_user.__class__.__name__.title() }}
+                        {{ current_user.department if current_user.__class__.__name__ == 'Student' else current_user.__class__.__name__.title() }}
                     </small>
                 </div>
             </div>
@@ -232,7 +232,7 @@
                     <i class="fas fa-globe text-muted"></i>
                     <select name="visibility" class="form-select form-select-sm" style="width: auto;">
                         <option value="public">Public</option>
-                        {% if hasattr(current_user, 'department') %}
+                        {% if current_user.__class__.__name__ == 'Student' %}
                         <option value="department">Department Only</option>
                         {% endif %}
                         <option value="private">Private</option>
