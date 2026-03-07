@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Dashboard - AU Events</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4361ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Mobile CSS -->
+    <link href="{{ url_for('static', filename='css/mobile.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="mobile-app">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>
+                    <i class="fas fa-home me-2"></i>
+                    Dashboard
+                </h1>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="toggleNotifications()">
+                        <i class="fas fa-bell"></i>
+                        {% if notifications|length > 0 %}
+                        <span class="notification-badge">{{ notifications|length }}</span>
+                        {% endif %}
+                    </button>
+                    <button class="header-btn" onclick="toggleProfile()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Content -->
+        <main class="mobile-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mobile-alert mobile-alert-{{ 'danger' if category == 'error' else category }}">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'info-circle' }}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Welcome Section -->
+            <div class="mobile-card">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                         style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--mobile-primary), #3651de); color: white;">
+                        <i class="fas fa-user fa-2x"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-1">Welcome back, {{ current_user.first_name }}!</h3>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-graduation-cap me-2"></i>
+                            {{ current_user.department }} • Year {{ current_user.year }}
+                        </p>
+                        <small class="text-success">
+                            <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
+                            Online
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>{{ registered_events|length if registered_events else 0 }}</h4>
+                    <p><i class="fas fa-calendar-check"></i> Registered</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #198754, #157347);">
+                    <h4>{{ recommended_events|length if recommended_events else 0 }}</h4>
+                    <p><i class="fas fa-star"></i> For You</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffc107, #e0a800);">
+                    <h4>{{ notifications|length if notifications else 0 }}</h4>
+                    <p><i class="fas fa-bell"></i> Alerts</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #6c757d, #495057);">
+                    <h4>{{ upcoming_events|length if upcoming_events else 0 }}</h4>
+                    <p><i class="fas fa-calendar-alt"></i> Upcoming</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mobile-card">
+                <h3><i class="fas fa-bolt me-2"></i>Quick Actions</h3>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.events') }}" class="mobile-btn touchable">
+                        <i class="fas fa-search me-2"></i>
+                        Browse Events
+                    </a>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{{ url_for('main.my_events') }}" class="mobile-btn mobile-btn-outline touchable">
+                                <i class="fas fa-user-check me-2"></i>
+                                My Events
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ url_for('main.calendar_view') }}" class="mobile-btn mobile-btn-outline touchable">
+                                <i class="fas fa-calendar-week me-2"></i>
+                                Calendar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Your Registered Events -->
+            {% if registered_events %}
+            <div class="mobile-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3><i class="fas fa-calendar-check me-2"></i>Your Events</h3>
+                    <a href="{{ url_for('main.my_events') }}" class="text-primary" style="font-size: 14px;">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                
+                {% for event in registered_events[:3] %}
+                <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">
+                    <div class="icon" style="background: linear-gradient(135deg, #198754, #157347);">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="content">
+                        <h4>{{ event.title }}</h4>
+                        <p>
+                            <i class="fas fa-clock me-1"></i>
+                            {{ event.date.strftime('%d %b') }} at {{ event.time.strftime('%I:%M %p') }}
+                        </p>
+                    </div>
+                    <div class="arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Recommended Events -->
+            {% if recommended_events %}
+            <div class="mobile-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3><i class="fas fa-star me-2"></i>Recommended for You</h3>
+                    <a href="{{ url_for('main.events', department=current_user.department) }}" class="text-primary" style="font-size: 14px;">
+                        More <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                
+                {% for event in recommended_events[:3] %}
+                <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">
+                    <div class="icon" style="background: linear-gradient(135deg, var(--mobile-primary), #3651de);">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="content">
+                        <h4>{{ event.title }}</h4>
+                        <p>
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {{ event.location }}
+                        </p>
+                        <div class="tags">
+                            <span class="tag department">{{ event.department }}</span>
+                        </div>
+                    </div>
+                    <div class="arrow">
+                        <button class="mobile-btn-small" onclick="event.stopPropagation(); registerForEvent({{ event.id }})">
+                            <i class="fas fa-plus me-1"></i>Register
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Recent Notifications -->
+            {% if notifications %}
+            <div class="mobile-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3><i class="fas fa-bell me-2"></i>Recent Notifications</h3>
+                    <a href="{{ url_for('main.notifications') }}" class="text-primary" style="font-size: 14px;">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                
+                {% for notification in notifications[:3] %}
+                <div class="mobile-list-item {{ 'opacity-75' if notification.is_read else '' }}">
+                    <div class="icon" style="background: {{ '#ffc107' if not notification.is_read else '#6c757d' }};">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="content">
+                        <h4>{{ notification.title }}</h4>
+                        <p>{{ notification.message[:50] }}...</p>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ notification.created_at.strftime('%d %b, %I:%M %p') }}
+                        </small>
+                    </div>
+                    {% if not notification.is_read %}
+                    <div class="arrow">
+                        <span class="badge bg-warning">New</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Recent Social Posts -->
+            <div class="mobile-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3><i class="fas fa-users me-2"></i>Community Feed</h3>
+                    <a href="{{ url_for('social.social_feed') }}" class="text-primary" style="font-size: 14px;">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                
+                <div id="recentPosts">
+                    <!-- Posts will be loaded via JavaScript -->
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('social.create_post') }}" class="mobile-btn mobile-btn-outline">
+                        <i class="fas fa-plus me-2"></i>Share Something
+                    </a>
+                </div>
+            </div>
+
+            <!-- Today's Events -->
+            <div class="mobile-card">
+                <h3><i class="fas fa-calendar-day me-2"></i>Today's Events</h3>
+                {% set today_events = upcoming_events|selectattr('date', 'equalto', today)|list if upcoming_events else [] %}
+                {% if today_events %}
+                    {% for event in today_events %}
+                    <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">
+                        <div class="icon" style="background: linear-gradient(135deg, #dc3545, #b02a37);">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="content">
+                            <h4>{{ event.title }}</h4>
+                            <p>
+                                <i class="fas fa-clock me-1"></i>
+                                {{ event.time.strftime('%I:%M %p') }} • {{ event.location }}
+                            </p>
+                        </div>
+                        <div class="arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-calendar-times" style="font-size: 32px; color: var(--mobile-text-secondary);"></i>
+                        <p class="text-muted mt-2 mb-0">No events scheduled for today</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="mobile-card">
+                <h3><i class="fas fa-chart-line me-2"></i>Your Activity</h3>
+                <div class="row">
+                    <div class="col-4 text-center">
+                        <div class="text-primary mb-2">
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                        </div>
+                        <h5>{{ current_user.event_registrations.count() }}</h5>
+                        <small class="text-muted">Total Registered</small>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="text-success mb-2">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                        <h5>{{ current_user.event_registrations.filter_by(attendance_status=True).count() }}</h5>
+                        <small class="text-muted">Attended</small>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="text-warning mb-2">
+                            <i class="fas fa-star fa-2x"></i>
+                        </div>
+                        <h5>{{ current_user.event_feedbacks.count() }}</h5>
+                        <small class="text-muted">Reviewed</small>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Mobile Bottom Navigation -->
+        <footer class="mobile-footer">
+            <button class="nav-btn active" data-view="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-btn" data-view="social" onclick="window.location.href='{{ url_for('social.social_feed') }}'">
+                <i class="fas fa-users"></i>
+                <span>Social</span>
+            </button>
+            <button class="nav-btn" data-view="events" onclick="window.location.href='{{ url_for('main.events') }}'">
+                <i class="fas fa-calendar"></i>
+                <span>Events</span>
+            </button>
+            <button class="nav-btn" data-view="notifications" onclick="window.location.href='{{ url_for('main.notifications') }}'">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+                {% if notifications|length > 0 %}
+                <span class="notification-badge">{{ notifications|length }}</span>
+                {% endif %}
+            </button>
+            <button class="nav-btn" data-view="profile" onclick="window.location.href='{{ url_for('auth.profile') }}'">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </button>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/mobile-app.js') }}"></script>
+    
+    <script>
+        function viewEvent(eventId) {
+            window.location.href = `/events/${eventId}`;
+        }
+        
+        function registerForEvent(eventId) {
+            if (!window.mobileApp.isOnline) {
+                window.mobileApp.showToast('You are offline. Try again when connected.', 'warning');
+                return;
+            }
+
+            fetch(`/events/${eventId}/register`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.success) {
+                    window.mobileApp.showToast('Successfully registered!', 'success');
+                    window.mobileApp.vibrate([100, 50, 100]);
+                    setTimeout(() => location.reload(), 1000);
+                } else if (data) {
+                    window.mobileApp.showToast(data.message || 'Registration failed', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Registration error:', error);
+                window.mobileApp.showToast('Network error. Please try again.', 'error');
+            });
+        }
+        
+        function toggleNotifications() {
+            // Show notifications overlay
+            window.location.href = '{{ url_for("main.notifications") }}';
+        }
+        
+        function toggleProfile() {
+            // Show profile menu
+            window.location.href = '{{ url_for("auth.profile") }}';
+        }
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button
+            const installBtn = document.createElement('button');
+            installBtn.className = 'mobile-btn mobile-btn-outline mt-3';
+            installBtn.innerHTML = '<i class="fas fa-download me-2"></i>Install App';
+            installBtn.onclick = installApp;
+            
+            const quickActions = document.querySelector('.mobile-card .d-grid');
+            if (quickActions) {
+                quickActions.appendChild(installBtn);
+            }
+        });
+        
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') {
+                        window.mobileApp.showToast('App installed successfully!', 'success');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+        
+        // Add to Home Screen instructions for iOS
+        if (window.navigator.standalone === false && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            const iosInstall = document.createElement('div');
+            iosInstall.className = 'mobile-alert mobile-alert-info mt-3';
+            iosInstall.innerHTML = `
+                <i class="fas fa-mobile-alt me-2"></i>
+                <span>Add to Home Screen: Tap <i class="fas fa-share"></i> then "Add to Home Screen"</span>
+            `;
+            document.querySelector('.mobile-content').appendChild(iosInstall);
+        }
+        
+        // Load recent social posts
+        function loadRecentPosts() {
+            fetch('/social/api/posts/recent?limit=3')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.posts.length > 0) {
+                        displayRecentPosts(data.posts);
+                    } else {
+                        showEmptyPostsState();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading posts:', error);
+                    showEmptyPostsState();
+                });
+        }
+        
+        function displayRecentPosts(posts) {
+            const container = document.getElementById('recentPosts');
+            let postsHTML = '';
+            
+            posts.forEach(post => {
+                const timeAgo = getTimeAgo(new Date(post.created_at));
+                postsHTML += `
+                    <div class="mobile-list-item touchable" onclick="window.location.href='/social/post/${post.id}'">
+                        <div class="icon" style="background: linear-gradient(135deg, #4361ee, #3651de);">
+                            ${post.author.name.charAt(0)}
+                        </div>
+                        <div class="content">
+                            <h4>${post.author.name}</h4>
+                            <p>${post.content.substring(0, 80)}${post.content.length > 80 ? '...' : ''}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-heart me-1"></i>${post.likes_count}
+                                <i class="fas fa-comment ms-2 me-1"></i>${post.comments_count}
+                                <span class="ms-2">${timeAgo}</span>
+                            </small>
+                        </div>
+                        <div class="arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = postsHTML;
+        }
+        
+        function showEmptyPostsState() {
+            const container = document.getElementById('recentPosts');
+            container.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="fas fa-comments" style="font-size: 32px; color: var(--mobile-text-secondary);"></i>
+                    <p class="text-muted mt-2 mb-0">No recent posts</p>
+                    <small class="text-muted">Be the first to share something!</small>
+                </div>
+            `;
+        }
+        
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return Math.floor(diffInSeconds / 60) + 'm ago';
+            if (diffInSeconds < 86400) return Math.floor(diffInSeconds / 3600) + 'h ago';
+            return Math.floor(diffInSeconds / 86400) + 'd ago';
+        }
+        
+        // Load posts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRecentPosts();
+        });
+    </script>
+</body>
+</html>

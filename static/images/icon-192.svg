@@ -1,0 +1,36 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="24" fill="#4361ee"/>
+  <g transform="translate(24, 24)">
+    <!-- Calendar icon -->
+    <rect x="20" y="32" width="104" height="84" rx="8" fill="white" opacity="0.9"/>
+    <rect x="28" y="40" width="88" height="12" rx="4" fill="#4361ee"/>
+    
+    <!-- Calendar grid -->
+    <g fill="#4361ee" opacity="0.7">
+      <rect x="32" y="60" width="12" height="8" rx="2"/>
+      <rect x="48" y="60" width="12" height="8" rx="2"/>
+      <rect x="64" y="60" width="12" height="8" rx="2"/>
+      <rect x="80" y="60" width="12" height="8" rx="2"/>
+      <rect x="96" y="60" width="12" height="8" rx="2"/>
+      
+      <rect x="32" y="76" width="12" height="8" rx="2"/>
+      <rect x="48" y="76" width="12" height="8" rx="2"/>
+      <rect x="64" y="76" width="12" height="8" rx="2"/>
+      <rect x="80" y="76" width="12" height="8" rx="2"/>
+      
+      <rect x="32" y="92" width="12" height="8" rx="2"/>
+      <rect x="48" y="92" width="12" height="8" rx="2"/>
+      <rect x="64" y="92" width="12" height="8" rx="2"/>
+    </g>
+    
+    <!-- Highlighted date -->
+    <rect x="80" y="76" width="12" height="8" rx="2" fill="white"/>
+    
+    <!-- Calendar hooks -->
+    <rect x="36" y="24" width="4" height="16" rx="2" fill="white" opacity="0.8"/>
+    <rect x="104" y="24" width="4" height="16" rx="2" fill="white" opacity="0.8"/>
+    
+    <!-- AU text -->
+    <text x="72" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="white">AU</text>
+  </g>
+</svg>

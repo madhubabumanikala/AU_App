@@ -1,0 +1,53 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="64" fill="#4361ee"/>
+  <g transform="translate(64, 64)">
+    <!-- Calendar icon -->
+    <rect x="64" y="96" width="256" height="224" rx="20" fill="white" opacity="0.95"/>
+    <rect x="80" y="112" width="224" height="32" rx="12" fill="#4361ee"/>
+    
+    <!-- Calendar grid -->
+    <g fill="#4361ee" opacity="0.8">
+      <!-- Week 1 -->
+      <rect x="96" y="160" width="28" height="20" rx="6"/>
+      <rect x="132" y="160" width="28" height="20" rx="6"/>
+      <rect x="168" y="160" width="28" height="20" rx="6"/>
+      <rect x="204" y="160" width="28" height="20" rx="6"/>
+      <rect x="240" y="160" width="28" height="20" rx="6"/>
+      <rect x="276" y="160" width="28" height="20" rx="6"/>
+      
+      <!-- Week 2 -->
+      <rect x="96" y="192" width="28" height="20" rx="6"/>
+      <rect x="132" y="192" width="28" height="20" rx="6"/>
+      <rect x="168" y="192" width="28" height="20" rx="6"/>
+      <rect x="204" y="192" width="28" height="20" rx="6"/>
+      <rect x="240" y="192" width="28" height="20" rx="6"/>
+      <rect x="276" y="192" width="28" height="20" rx="6"/>
+      
+      <!-- Week 3 -->
+      <rect x="96" y="224" width="28" height="20" rx="6"/>
+      <rect x="132" y="224" width="28" height="20" rx="6"/>
+      <rect x="168" y="224" width="28" height="20" rx="6"/>
+      <rect x="204" y="224" width="28" height="20" rx="6"/>
+      <rect x="240" y="224" width="28" height="20" rx="6"/>
+      
+      <!-- Week 4 -->
+      <rect x="96" y="256" width="28" height="20" rx="6"/>
+      <rect x="132" y="256" width="28" height="20" rx="6"/>
+      <rect x="168" y="256" width="28" height="20" rx="6"/>
+      <rect x="204" y="256" width="28" height="20" rx="6"/>
+    </g>
+    
+    <!-- Highlighted dates (events) -->
+    <rect x="204" y="192" width="28" height="20" rx="6" fill="#198754"/>
+    <rect x="168" y="224" width="28" height="20" rx="6" fill="#dc3545"/>
+    <rect x="240" y="224" width="28" height="20" rx="6" fill="#ffc107"/>
+    
+    <!-- Calendar hooks -->
+    <rect x="112" y="64" width="12" height="48" rx="6" fill="white" opacity="0.9"/>
+    <rect x="272" y="64" width="12" height="48" rx="6" fill="white" opacity="0.9"/>
+    
+    <!-- AU text -->
+    <text x="192" y="360" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white">AU</text>
+    <text x="192" y="390" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="normal" fill="white" opacity="0.8">EVENTS</text>
+  </g>
+</svg>
