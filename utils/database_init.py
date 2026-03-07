@@ -100,35 +100,54 @@ def create_additional_tables():
 def create_default_admin():
     """Create default admin account if it doesn't exist"""
     
-    # Check if admin already exists
-    existing_admin = Admin.query.filter_by(email='admin@au.edu').first()
-    if existing_admin:
-        # Check if password hash is valid
-        if not existing_admin.password_hash or len(existing_admin.password_hash) < 10:
+    # Check if admin already exists by email or username
+    existing_admin_by_email = Admin.query.filter_by(email='admin@au.edu').first()
+    existing_admin_by_username = Admin.query.filter_by(username='admin').first()
+    
+    # If admin exists by email, check password hash
+    if existing_admin_by_email:
+        if not existing_admin_by_email.password_hash or len(existing_admin_by_email.password_hash) < 10:
             print("⚠️  Existing admin has invalid password hash, recreating...")
-            db.session.delete(existing_admin)
+            db.session.delete(existing_admin_by_email)
             db.session.commit()
         else:
             print("✅ Default admin account already exists with valid hash")
-            logger.info("Default admin account already exists")
             return
     
+    # If different admin exists by username, skip creation
+    elif existing_admin_by_username:
+        print("⚠️  Admin username already taken by different account, skipping creation")
+        return
+    
     # Create default admin with proper password hash
-    from werkzeug.security import generate_password_hash
-    
-    admin = Admin(
-        username='admin',
-        first_name='System',
-        last_name='Administrator',
-        email='admin@au.edu',
-        role='super_admin',
-        department='Administration',
-        password_hash=generate_password_hash('admin123')
-    )
-    
-    db.session.add(admin)
-    print("✅ Created default admin account: admin@au.edu / admin123")
-    logger.info("Created default admin account: admin@au.edu / admin123")
+    try:
+        from werkzeug.security import generate_password_hash
+        
+        admin = Admin(
+            username='admin',
+            first_name='System',
+            last_name='Administrator',
+            email='admin@au.edu',
+            role='super_admin',
+            department='Administration',
+            password_hash=generate_password_hash('admin123')
+        )
+        
+        db.session.add(admin)
+        db.session.flush()  # Check for constraint violations before commit
+        print("✅ Created default admin account: admin@au.edu / admin123")
+        logger.info("Created default admin account: admin@au.edu / admin123")
+        
+    except Exception as e:
+        print(f"⚠️  Could not create admin account: {e}")
+        logger.error(f"Admin creation failed: {e}")
+        db.session.rollback()
+        # Try to find existing admin that we can use
+        existing_admin = Admin.query.first()
+        if existing_admin:
+            print(f"✅ Using existing admin account: {existing_admin.email}")
+        else:
+            print("❌ No admin account available - manual creation required")
 
 def check_database_health():
     """Check if database is properly set up"""
