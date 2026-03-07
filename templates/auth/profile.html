@@ -35,34 +35,34 @@
                         <div class="card-body">
                             <table class="table table-borderless">
                                 <tr>
-                                    <td><strong>Full Name:</strong></td>
-                                    <td>{{ current_user.full_name }}</td>
+                                    <td style="width: 150px;"><strong>Full Name:</strong></td>
+                                    <td style="padding-left: 20px;">{{ current_user.full_name }}</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Student ID:</strong></td>
-                                    <td>{{ current_user.student_id }}</td>
+                                    <td style="width: 150px;"><strong>Student ID:</strong></td>
+                                    <td style="padding-left: 20px;">{{ current_user.student_id }}</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Email:</strong></td>
-                                    <td>{{ current_user.email }}</td>
+                                    <td style="width: 150px;"><strong>Email:</strong></td>
+                                    <td style="padding-left: 20px;">{{ current_user.email }}</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Department:</strong></td>
-                                    <td>{{ current_user.department }}</td>
+                                    <td style="width: 150px;"><strong>Department:</strong></td>
+                                    <td style="padding-left: 20px;">{{ current_user.department }}</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Year:</strong></td>
-                                    <td>{{ current_user.year }}</td>
+                                    <td style="width: 150px;"><strong>Year:</strong></td>
+                                    <td style="padding-left: 20px;">{{ current_user.year }}</td>
                                 </tr>
                                 {% if current_user.phone_number %}
                                 <tr>
-                                    <td><strong>Phone:</strong></td>
-                                    <td>{{ current_user.phone_number }}</td>
+                                    <td style="width: 150px;"><strong>Phone:</strong></td>
+                                    <td style="padding-left: 20px;">{{ current_user.phone_number }}</td>
                                 </tr>
                                 {% endif %}
                                 <tr>
-                                    <td><strong>Member Since:</strong></td>
-                                    <td>{{ current_user.created_at.strftime('%B %d, %Y') }}</td>
+                                    <td style="width: 150px;"><strong>Member Since:</strong></td>
+                                    <td style="padding-left: 20px;">{{ current_user.created_at.strftime('%B %d, %Y') }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -117,7 +117,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    {% set recent_registrations = current_user.event_registrations.order_by('-registration_date').limit(5).all() %}
+                    {% set recent_registrations = current_user.event_registrations.order_by(text('-registration_date')).limit(5).all() %}
                     {% if recent_registrations %}
                         <div class="list-group list-group-flush">
                             {% for registration in recent_registrations %}
