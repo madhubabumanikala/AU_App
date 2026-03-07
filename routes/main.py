@@ -222,6 +222,16 @@ def calendar_view():
         Event.is_active == True
     ).all()
     
+    # Get user's personal tasks for the month
+    from models.task import Task
+    tasks = Task.query.filter(
+        Task.date >= start_date,
+        Task.date < end_date,
+        Task.user_id == current_user.id,
+        Task.user_type == current_user.__class__.__name__.lower(),
+        Task.is_active == True
+    ).all()
+    
     # Create calendar data
     cal = calendar.monthcalendar(year, month)
     month_name = calendar.month_name[month]
@@ -231,7 +241,8 @@ def calendar_view():
                          month_name=month_name,
                          year=year,
                          month=month,
-                         events=events)
+                         events=events,
+                         tasks=tasks)
 
 @main_bp.route('/notifications')
 @login_required

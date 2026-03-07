@@ -68,6 +68,7 @@ def create_app(config_name=None):
     from routes.api import api_bp
     from routes.social import social_bp
     from routes.debug import debug_bp
+    from routes.tasks import tasks_bp
     
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(main_bp)
@@ -76,6 +77,7 @@ def create_app(config_name=None):
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(social_bp, url_prefix='/social')
     app.register_blueprint(debug_bp)
+    app.register_blueprint(tasks_bp, url_prefix='/tasks')
     
     # Add mobile context processor
     from utils.mobile_detector import mobile_context_processor
