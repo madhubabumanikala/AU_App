@@ -130,8 +130,9 @@ class MediaHandler:
             file.save(file_path)
             
             # Generate relative URL for database storage
-            relative_path = file_path.replace(current_app.config.get('UPLOAD_FOLDER', 'static/uploads'), '').lstrip('/')
-            file_url = f"/static/uploads/{relative_path}"
+            base_upload = current_app.config.get('UPLOAD_FOLDER', 'static/uploads')
+            relative_path = str(file_path).replace(str(base_upload), '').lstrip('/').lstrip('\\')
+            file_url = f"/static/uploads/{relative_path}".replace('\\', '/')
             
             result = {
                 'filename': unique_filename,
