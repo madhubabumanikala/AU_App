@@ -17,20 +17,14 @@
                         
                         <!-- User Type Selection -->
                         <div class="input-group">
-                            <label class="form-label">Choose your role</label>
+                            <input type="hidden" name="user_type" value="student" id="user_type_hidden">
                             <div class="card-grid card-grid-2" style="gap: 1rem;">
-                                <div class="form-check" style="margin: 0;">
-                                    <input type="radio" name="user_type" value="student" id="user_type_student" class="form-check-input" checked>
-                                    <label class="form-check-label d-flex align-items-center justify-content-center p-3 border rounded" for="user_type_student" style="cursor: pointer; transition: all 0.3s ease;">
-                                        <i class="fas fa-user-graduate me-2"></i>Student
-                                    </label>
-                                </div>
-                                <div class="form-check" style="margin: 0;">
-                                    <input type="radio" name="user_type" value="admin" id="user_type_admin" class="form-check-input">
-                                    <label class="form-check-label d-flex align-items-center justify-content-center p-3 border rounded" for="user_type_admin" style="cursor: pointer; transition: all 0.3s ease;">
-                                        <i class="fas fa-user-shield me-2"></i>Admin
-                                    </label>
-                                </div>
+                                <button type="button" class="btn btn-outline-primary d-flex align-items-center justify-content-center p-3 user-type-btn active" data-type="student">
+                                    <i class="fas fa-user-graduate me-2"></i>Student
+                                </button>
+                                <button type="button" class="btn btn-outline-primary d-flex align-items-center justify-content-center p-3 user-type-btn" data-type="admin">
+                                    <i class="fas fa-user-shield me-2"></i>Admin
+                                </button>
                             </div>
                         </div>
 
@@ -160,38 +154,28 @@ document.addEventListener('DOMContentLoaded', function() {
         emailField.focus();
     }
     
-    // Handle user type selection
-    const user_type_radios = document.querySelectorAll('input[name="user_type"]');
-    const cardHeader = document.querySelector('.card-header h4');
+    // Handle user type selection with buttons
+    const userTypeButtons = document.querySelectorAll('.user-type-btn');
+    const hiddenUserType = document.getElementById('user_type_hidden');
     
-    user_type_radios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            // Update form title based on selection
-            if (cardHeader) {
-                if (this.value === 'admin') {
-                    cardHeader.innerHTML = '<i class="fas fa-user-shield me-2"></i>Admin Login';
-                } else {
-                    cardHeader.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Login';
-                }
-            }
-            
-            // Visual feedback for selection
-            user_type_radios.forEach(r => {
-                const label = r.nextElementSibling;
-                if (r.checked) {
-                    label.style.color = '#007bff';
-                    label.style.fontWeight = '600';
-                } else {
-                    label.style.color = '';
-                    label.style.fontWeight = '500';
-                }
+    userTypeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            userTypeButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
             });
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('btn-primary');
+            
+            // Update hidden input value
+            const userType = this.getAttribute('data-type');
+            hiddenUserType.value = userType;
         });
-        
-        // Trigger change event to set initial state
-        if (radio.checked) {
-            radio.dispatchEvent(new Event('change'));
-        }
     });
 });
 </script>
