@@ -117,16 +117,55 @@
 {% endfor %}
 
 {% if not posts %}
-<div class="card text-center">
-    <div class="card-body py-5">
-        <div class="icon-circle mx-auto mb-3" style="background: var(--warning-gradient); width: 64px; height: 64px; font-size: 1.5rem;">
-            <i class="fas fa-comments"></i>
+<!-- Empty State -->
+<div class="card text-center shadow-sm" style="margin-top: 2rem; margin-bottom: 3rem;">
+    <div class="card-body py-5 px-4">
+        <div class="d-flex flex-column align-items-center justify-content-center min-vh-50">
+            <div class="icon-circle mx-auto mb-4" style="background: var(--primary-gradient); width: 80px; height: 80px; font-size: 2rem; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-comments text-white"></i>
+            </div>
+            <h4 class="mb-3 fw-bold text-dark">No Posts Yet</h4>
+            <p class="text-muted mb-4 lead" style="max-width: 400px;">
+                Be the first to share something with your campus community! Start a conversation, share an update, or connect with fellow students.
+            </p>
+            <div class="d-flex flex-column flex-sm-row gap-3 align-items-center">
+                <a href="{{ url_for('social.create_post') }}" class="btn btn-primary btn-lg px-4 py-2">
+                    <i class="fas fa-plus me-2"></i>Create Your First Post
+                </a>
+                <a href="{{ url_for('main.events') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-calendar-alt me-2"></i>Browse Events
+                </a>
+            </div>
         </div>
-        <h5>No Posts Yet</h5>
-        <p class="text-muted">Be the first to share something with your campus community!</p>
-        <a href="{{ url_for('social.create_post') }}" class="btn-gradient-primary">
-            <i class="fas fa-plus me-2"></i>Create Your First Post
-        </a>
+    </div>
+</div>
+
+<!-- Helpful Tips Card -->
+<div class="card border-0 bg-light">
+    <div class="card-body text-center py-4">
+        <h6 class="text-muted mb-3">
+            <i class="fas fa-lightbulb me-2"></i>Get Started
+        </h6>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="p-3">
+                    <i class="fas fa-share-alt text-primary mb-2" style="font-size: 1.2rem;"></i>
+                    <small class="d-block text-muted">Share campus updates</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3">
+                    <i class="fas fa-users text-success mb-2" style="font-size: 1.2rem;"></i>
+                    <small class="d-block text-muted">Connect with students</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3">
+                    <i class="fas fa-calendar text-info mb-2" style="font-size: 1.2rem;"></i>
+                    <small class="d-block text-muted">Discuss events</small>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endif %}
