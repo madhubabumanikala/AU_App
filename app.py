@@ -47,14 +47,26 @@ def create_app(config_name=None):
     @login_manager.user_loader
     def load_user(user_id):
         from models.user import Student, Admin
-        # Try to load as student first
-        student = Student.query.get(int(user_id))
-        if student:
-            return student
+        # User ID format: "admin_1" or "student_1" to distinguish user types
+        if user_id.startswith('admin_'):
+            admin_id = int(user_id.replace('admin_', ''))
+            return Admin.query.get(admin_id)
+        elif user_id.startswith('student_'):
+            student_id = int(user_id.replace('student_', ''))
+            return Student.query.get(student_id)
         
-        # Try to load as admin
-        admin = Admin.query.get(int(user_id))
-        return admin
+        # Fallback for legacy IDs - try both tables
+        try:
+            user_id_int = int(user_id)
+            # Try admin first for legacy compatibility
+            admin = Admin.query.get(user_id_int)
+            if admin:
+                return admin
+            # Then try student
+            student = Student.query.get(user_id_int)
+            return student
+        except ValueError:
+            return None
     
     # Create upload directories if they don't exist
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

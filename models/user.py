@@ -21,6 +21,11 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
     
+    def get_id(self):
+        """Return user ID with type prefix for Flask-Login"""
+        user_type = self.__class__.__name__.lower()
+        return f"{user_type}_{self.id}"
+    
     def __repr__(self):
         return f'<User {self.email}>'
 

@@ -38,14 +38,18 @@ def login():
         
         if user and user.check_password(password) and user.is_active:
             login_user(user, remember=form.remember_me.data)
-            flash(f'Welcome back, {user.first_name}!', 'success')
+            
+            # Double-check the actual user type from the database object
+            actual_user_type = user.__class__.__name__.lower()
+            
+            flash(f'Welcome back, {user.first_name}! (Logged in as {actual_user_type})', 'success')
             
             next_page = request.args.get('next')
             if next_page:
                 return redirect(next_page)
             
-            # Check user type directly instead of isinstance after login
-            if user_type == 'admin':
+            # Use actual user type, not form selection
+            if actual_user_type == 'admin':
                 return redirect(url_for('admin.dashboard'))
             else:
                 return redirect(url_for('main.dashboard'))
