@@ -81,9 +81,10 @@ def create_app(config_name=None):
     from utils.mobile_detector import mobile_context_processor
     app.context_processor(mobile_context_processor)
     
-    # Create database tables
+    # Initialize database with tables and default data
     with app.app_context():
-        db.create_all()
+        from utils.database_init import init_database
+        init_database()
     
     return app
 

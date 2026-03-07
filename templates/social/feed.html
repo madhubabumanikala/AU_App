@@ -131,3 +131,119 @@
 </div>
 {% endif %}
 {% endblock %}
+
+{% block extra_js %}
+<script>
+// Like/Unlike functionality
+function toggleLike(postId) {
+    fetch(`/social/api/post/${postId}/like`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || 'Error updating like');
+        }
+    })
+    .catch(error => {
+        console.error('Like error:', error);
+        alert('Network error');
+    });
+}
+
+// Toggle comments section
+function toggleComments(postId) {
+    const commentsSection = document.getElementById(`comments-${postId}`);
+    if (commentsSection.style.display === 'none') {
+        commentsSection.style.display = 'block';
+        commentsSection.querySelector('.comment-input').focus();
+    } else {
+        commentsSection.style.display = 'none';
+    }
+}
+
+// Share post
+function sharePost(postId) {
+    if (navigator.share) {
+        navigator.share({
+            title: 'AU Events Post',
+            text: 'Check out this post from AU Events',
+            url: `/social/post/${postId}`
+        });
+    } else {
+        const url = `${window.location.origin}/social/post/${postId}`;
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Link copied to clipboard!');
+        });
+    }
+    
+    // Track share
+    fetch(`/social/api/post/${postId}/share`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    });
+}
+
+// Admin functions
+function togglePin(postId) {
+    fetch(`/social/admin/post/${postId}/pin`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.message || 'Error updating post');
+        }
+    })
+    .catch(error => {
+        console.error('Pin error:', error);
+        alert('Network error');
+    });
+}
+
+function deletePost(postId) {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    
+    fetch(`/social/admin/post/${postId}/delete`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || 'Error deleting post');
+        }
+    })
+    .catch(error => {
+        console.error('Delete error:', error);
+        alert('Network error');
+    });
+}
+
+function openImageModal(imageUrl) {
+    document.getElementById('modalImage').src = imageUrl;
+    new bootstrap.Modal(document.getElementById('imageModal')).show();
+}
+</script>
+{% endblock %}

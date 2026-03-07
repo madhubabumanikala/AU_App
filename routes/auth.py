@@ -44,7 +44,8 @@ def login():
             if next_page:
                 return redirect(next_page)
             
-            if isinstance(current_user, Admin):
+            # Check user type directly instead of isinstance after login
+            if user_type == 'admin':
                 return redirect(url_for('admin.dashboard'))
             else:
                 return redirect(url_for('main.dashboard'))
