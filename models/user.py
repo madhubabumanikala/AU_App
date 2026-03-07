@@ -59,6 +59,11 @@ class Student(User):
             ~Event.registrations.any(student_id=self.id)
         ).order_by(Event.date).limit(limit).all()
     
+    @property
+    def unread_notifications_count(self):
+        """Get count of unread notifications for this student"""
+        return self.notifications.filter_by(is_read=False).count()
+    
     def __repr__(self):
         return f'<Student {self.student_id}>'
 
@@ -77,6 +82,11 @@ class Admin(User):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+    
+    @property
+    def unread_notifications_count(self):
+        """Admin users don't have notifications system, return 0"""
+        return 0
     
     def __repr__(self):
         return f'<Admin {self.username}>'

@@ -94,6 +94,8 @@ def student_register():
         
         flash('Registration successful! You can now log in.', 'success')
         return redirect(url_for('auth.login'))
+    
+    return render_template('auth/student_register.html', form=form)
 
 @auth_bp.route('/logout')
 @login_required
