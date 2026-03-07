@@ -232,7 +232,8 @@ def calendar_view():
         Task.is_active == True
     ).all()
     
-    # Create calendar data
+    # Create calendar data - set first day of week to Sunday (6)
+    calendar.setfirstweekday(calendar.SUNDAY)
     cal = calendar.monthcalendar(year, month)
     month_name = calendar.month_name[month]
     
