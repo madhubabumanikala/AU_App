@@ -6,6 +6,7 @@ from models.notification import Notification
 from extensions import db
 from datetime import datetime, timedelta
 from utils.qr_generator import generate_qr_code
+from utils.mobile_detector import MobileDetector, mobile_template
 import calendar
 
 main_bp = Blueprint('main', __name__)
@@ -46,7 +47,7 @@ def dashboard():
         Event.is_active == True
     ).order_by(Event.date).limit(10).all()
     
-    return render_template('main/dashboard_complete.html',
+    return render_template(mobile_template('main/dashboard_complete.html'),
                          registered_events=registered_events,
                          recommended_events=recommended_events,
                          notifications=unread_notifications,
@@ -78,7 +79,7 @@ def events():
     departments = db.session.query(Event.department).distinct().all()
     categories = db.session.query(Event.category).distinct().all()
     
-    return render_template('main/events_filtered.html', 
+    return render_template(mobile_template('main/events_filtered.html'), 
                          events=events,
                          page=page,
                          pages=events.pages,
@@ -90,7 +91,8 @@ def events():
                          categories=[c[0] for c in categories],
                          current_department=department,
                          current_category=category,
-                         current_search=search)
+                         current_search=search,
+                         current_date=datetime.utcnow().date())
 
 @main_bp.route('/events/<int:event_id>')
 def event_details(event_id):

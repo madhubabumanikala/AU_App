@@ -73,6 +73,10 @@ def create_app(config_name=None):
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(api_bp, url_prefix='/api')
     
+    # Add mobile context processor
+    from utils.mobile_detector import mobile_context_processor
+    app.context_processor(mobile_context_processor)
+    
     # Create database tables
     with app.app_context():
         db.create_all()
