@@ -2,185 +2,49 @@
 
 {% block title %}Create Post - AU Events{% endblock %}
 
-{% block extra_css %}
-<style>
-    .create-post-container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    
-    .post-form {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        padding: 30px;
-    }
-    
-    .user-info {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .user-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #4361ee, #3651de);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 18px;
-        margin-right: 15px;
-    }
-    
-    .post-textarea {
-        width: 100%;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 15px;
-        min-height: 150px;
-        resize: vertical;
-        font-size: 16px;
-        line-height: 1.5;
-    }
-    
-    .post-textarea:focus {
-        outline: none;
-        border-color: #4361ee;
-        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-    }
-    
-    .media-upload {
-        border: 2px dashed #ddd;
-        border-radius: 8px;
-        padding: 30px;
-        text-align: center;
-        margin: 20px 0;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-    
-    .media-upload:hover {
-        border-color: #4361ee;
-        background: rgba(67, 97, 238, 0.05);
-    }
-    
-    .media-preview {
-        margin: 20px 0;
-        border-radius: 8px;
-        overflow: hidden;
-        position: relative;
-    }
-    
-    .media-preview img, .media-preview video {
-        width: 100%;
-        height: auto;
-        display: block;
-    }
-    
-    .remove-media {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(220, 53, 69, 0.9);
-        color: white;
-        border: none;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        cursor: pointer;
-    }
-    
-    .post-options {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 20px 0;
-        padding: 15px 0;
-        border-top: 1px solid #eee;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .post-actions {
-        display: flex;
-        gap: 15px;
-    }
-    
-    .action-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        border: 1px solid #ddd;
-        background: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #666;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .action-icon:hover {
-        background: #4361ee;
-        color: white;
-        border-color: #4361ee;
-    }
-    
-    .privacy-select {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .submit-section {
-        display: flex;
-        gap: 15px;
-        justify-content: flex-end;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="create-post-container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2><i class="fas fa-plus me-2"></i>Create Post</h2>
-                <p class="text-muted mb-0">Share with the AU community</p>
-            </div>
-            <a href="{{ url_for('social.social_feed') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Feed
-            </a>
-        </div>
-
-        <form method="POST" enctype="multipart/form-data" class="post-form">
-            <!-- User Info -->
-            <div class="user-info">
-                <div class="user-avatar">
-                    {{ current_user.first_name[0] }}
+<!-- Create Post Header -->
+<div class="card slide-up">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle me-3" style="width: 40px; height: 40px;">
+                    <i class="fas fa-plus"></i>
                 </div>
                 <div>
-                    <h6 class="mb-0">{{ current_user.first_name }} {{ current_user.last_name }}</h6>
-                    <small class="text-muted">
-                        <i class="fas fa-graduation-cap me-1"></i>
-                        {{ current_user.department if current_user.__class__.__name__ == 'Student' else current_user.__class__.__name__.title() }}
-                    </small>
+                    <h1 class="display-title mb-0">Create Post</h1>
+                    <small class="text-muted">Share with your campus community</small>
                 </div>
             </div>
+            <a href="{{ url_for('social.social_feed') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+
+    
+    <div class="card-body">
+        <!-- User Info -->
+        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+            <div class="icon-circle me-3" style="background: var(--primary-gradient); width: 48px; height: 48px; font-size: 1.2rem;">
+                {{ current_user.first_name[0] if current_user.first_name else 'U' }}
+            </div>
+            <div>
+                <h6 class="mb-0">{{ current_user.first_name }} {{ current_user.last_name }}</h6>
+                <small class="text-muted">{{ current_user.__class__.__name__ }} • {{ current_user.department if current_user.__class__.__name__ == 'Student' else 'Staff' }}</small>
+            </div>
+        </div>
+        
+        <form method="POST" enctype="multipart/form-data">
 
             <!-- Post Content -->
-            <div class="mb-3">
+            <div class="input-group mb-4">
                 <label for="content" class="form-label">What's on your mind?</label>
-                <textarea name="content" class="post-textarea" 
+                <textarea name="content" class="form-control" id="content"
                           placeholder="Share your thoughts, experiences, or event updates..."
-                          maxlength="2000" required></textarea>
-                <div class="text-end">
+                          maxlength="2000" rows="4" required></textarea>
+                <div class="text-end mt-2">
                     <small class="text-muted">
                         <span id="charCount">0</span>/2000 characters
                     </small>
@@ -188,11 +52,11 @@
             </div>
 
             <!-- Event Association -->
-            <div class="mb-3">
+            <div class="input-group mb-4">
                 <label for="event_id" class="form-label">
-                    <i class="fas fa-calendar me-2"></i>Associate with Event (Optional)
+                    <i class="fas fa-calendar me-2 text-primary"></i>Associate with Event (Optional)
                 </label>
-                <select name="event_id" class="form-select">
+                <select name="event_id" class="form-control" id="event_id">
                     <option value="">No event association</option>
                     {% for event in events %}
                     <option value="{{ event.id }}">
@@ -203,34 +67,35 @@
             </div>
 
             <!-- Media Upload -->
-            <div class="media-upload" onclick="document.getElementById('mediaFile').click()">
-                <input type="file" id="mediaFile" name="media_file" style="display: none;" 
-                       accept="image/*,video/*,.pdf,.doc,.docx,.txt">
-                <i class="fas fa-camera fa-3x text-muted mb-3"></i>
-                <h5>Add Photos, Videos, or Documents</h5>
-                <p class="text-muted">Click to browse or drag and drop files here</p>
+            <div class="card bg-light border-dashed mb-4" onclick="document.getElementById('mediaFile').click()" style="cursor: pointer; border: 2px dashed var(--border-color);">
+                <div class="card-body text-center py-4">
+                    <input type="file" id="mediaFile" name="media_file" style="display: none;" 
+                           accept="image/*,video/*,.pdf,.doc,.docx,.txt">
+                    <div class="icon-circle mx-auto mb-3" style="background: var(--secondary-gradient); width: 56px; height: 56px; font-size: 1.5rem;">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h6 class="mb-2">Add Media</h6>
+                    <p class="text-muted small mb-0">Photos, videos, or documents</p>
+                </div>
             </div>
 
             <!-- Media Preview -->
-            <div id="mediaPreview" style="display: none;"></div>
+            <div id="mediaPreview" class="mb-4" style="display: none;"></div>
 
             <!-- Post Options -->
-            <div class="post-options">
-                <div class="post-actions">
-                    <div class="action-icon" title="Add Photo/Video" onclick="document.getElementById('mediaFile').click()">
-                        <i class="fas fa-camera"></i>
-                    </div>
-                    <div class="action-icon" title="Add Location">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <div class="action-icon" title="Tag Event">
-                        <i class="fas fa-calendar-plus"></i>
-                    </div>
+            <div class="d-flex justify-content-between align-items-center py-3 border-top border-bottom mb-4">
+                <div class="d-flex gap-3">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" title="Add Media" onclick="document.getElementById('mediaFile').click()">
+                        <i class="fas fa-camera me-1"></i>Media
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" title="Add Location">
+                        <i class="fas fa-map-marker-alt me-1"></i>Location
+                    </button>
                 </div>
                 
-                <div class="privacy-select">
+                <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-globe text-muted"></i>
-                    <select name="visibility" class="form-select form-select-sm" style="width: auto;">
+                    <select name="visibility" class="form-control" style="width: auto; min-width: 120px;">
                         <option value="public">Public</option>
                         {% if current_user.__class__.__name__ == 'Student' %}
                         <option value="department">Department Only</option>
@@ -239,41 +104,39 @@
                     </select>
                 </div>
                 
-                <!-- Admin-only Options -->
-                {% if current_user.__class__.__name__ == 'Admin' %}
-                <div class="admin-options mt-3">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="is_university_post" id="universityPost">
-                                <label class="form-check-label" for="universityPost">
-                                    <i class="fas fa-university text-info me-1"></i>
-                                    <strong>University Post</strong>
-                                    <small class="d-block text-muted">Official university-wide announcement</small>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="is_announcement" id="announcement">
-                                <label class="form-check-label" for="announcement">
-                                    <i class="fas fa-bullhorn text-warning me-1"></i>
-                                    <strong>Official Announcement</strong>
-                                    <small class="d-block text-muted">Important system-wide notice</small>
-                                </label>
-                            </div>
-                        </div>
+            </div>
+            
+            <!-- Admin-only Options -->
+            {% if current_user.__class__.__name__ == 'Admin' %}
+            <div class="alert alert-info">
+                <h6 class="mb-3"><i class="fas fa-shield-alt me-2"></i>Admin Options</h6>
+                <div class="card-grid card-grid-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_university_post" id="universityPost">
+                        <label class="form-check-label" for="universityPost">
+                            <i class="fas fa-university text-info me-2"></i>
+                            <strong>University Post</strong>
+                            <small class="d-block text-muted">Official university announcement</small>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_announcement" id="announcement">
+                        <label class="form-check-label" for="announcement">
+                            <i class="fas fa-bullhorn text-warning me-2"></i>
+                            <strong>Announcement</strong>
+                            <small class="d-block text-muted">Important system notice</small>
+                        </label>
                     </div>
                 </div>
-                {% endif %}
             </div>
+            {% endif %}
 
             <!-- Submit Section -->
-            <div class="submit-section">
+            <div class="d-flex gap-3 justify-content-end">
                 <button type="button" class="btn btn-outline-secondary">
                     <i class="fas fa-save me-2"></i>Save Draft
                 </button>
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn-gradient-primary">
                     <i class="fas fa-paper-plane me-2"></i>Publish Post
                 </button>
             </div>
@@ -284,9 +147,8 @@
 
 {% block extra_js %}
 <script>
-    const textarea = document.querySelector('.post-textarea');
+    const textarea = document.getElementById('content');
     const charCount = document.getElementById('charCount');
-    const mediaUpload = document.querySelector('.media-upload');
     const mediaFile = document.getElementById('mediaFile');
     
     // Character count
@@ -304,9 +166,9 @@
             if (file.type.startsWith('image/')) {
                 reader.onload = function(e) {
                     preview.innerHTML = `
-                        <div class="media-preview">
-                            <img src="${e.target.result}" alt="Preview">
-                            <button type="button" class="remove-media" onclick="removeMedia()">
+                        <div class="card position-relative">
+                            <img src="${e.target.result}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Preview">
+                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2" onclick="removeMedia()">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -317,11 +179,11 @@
             } else if (file.type.startsWith('video/')) {
                 reader.onload = function(e) {
                     preview.innerHTML = `
-                        <div class="media-preview">
-                            <video controls>
+                        <div class="card position-relative">
+                            <video controls class="card-img-top" style="height: 200px; object-fit: cover;">
                                 <source src="${e.target.result}" type="${file.type}">
                             </video>
-                            <button type="button" class="remove-media" onclick="removeMedia()">
+                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2" onclick="removeMedia()">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -349,7 +211,9 @@
         document.getElementById('mediaPreview').style.display = 'none';
     }
     
-    // Drag and drop
+    // Drag and drop for media upload card
+    const mediaUpload = document.querySelector('.border-dashed');
+    
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         mediaUpload.addEventListener(eventName, preventDefaults, false);
     });
@@ -370,13 +234,13 @@
     }
     
     function highlight() {
-        mediaUpload.style.borderColor = '#4361ee';
-        mediaUpload.style.background = 'rgba(67, 97, 238, 0.05)';
+        mediaUpload.style.borderColor = 'var(--primary-color)';
+        mediaUpload.style.background = 'var(--primary-bg-light)';
     }
     
     function unhighlight() {
-        mediaUpload.style.borderColor = '#ddd';
-        mediaUpload.style.background = 'white';
+        mediaUpload.style.borderColor = 'var(--border-color)';
+        mediaUpload.style.background = '';
     }
     
     function handleDrop(e) {

@@ -2,590 +2,136 @@
 
 {% block title %}Social Feed - AU Events{% endblock %}
 
-{% block extra_css %}
-<style>
-    .social-feed-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    
-    .post-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        margin-bottom: 20px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .post-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-    }
-    
-    .post-header {
-        padding: 20px;
-        border-bottom: 1px solid #f0f0f0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .author-info {
-        display: flex;
-        align-items: center;
-    }
-    
-    .author-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #4361ee, #3651de);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 18px;
-        margin-right: 15px;
-    }
-    
-    .author-details h6 {
-        margin: 0;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-    
-    .author-details small {
-        color: #7f8c8d;
-        display: block;
-    }
-    
-    .post-meta {
-        color: #95a5a6;
-        font-size: 13px;
-    }
-    
-    .post-content {
-        padding: 20px;
-    }
-    
-    .post-text {
-        margin-bottom: 15px;
-        line-height: 1.6;
-        color: #2c3e50;
-    }
-    
-    .post-media {
-        margin: 15px 0;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .post-media img, .post-media video {
-        width: 100%;
-        height: auto;
-        display: block;
-    }
-    
-    .event-tag {
-        display: inline-block;
-        background: rgba(25, 135, 84, 0.1);
-        color: #198754;
-        padding: 5px 12px;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
-    
-    .post-stats {
-        padding: 15px 20px;
-        border-top: 1px solid #f0f0f0;
-        border-bottom: 1px solid #f0f0f0;
-        color: #7f8c8d;
-        font-size: 13px;
-    }
-    
-    .post-actions {
-        display: flex;
-        justify-content: space-around;
-        padding: 15px 20px;
-    }
-    
-    .action-btn {
-        background: none;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #7f8c8d;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        flex: 1;
-        justify-content: center;
-    }
-    
-    .action-btn:hover {
-        background: rgba(67, 97, 238, 0.1);
-        color: #4361ee;
-    }
-    
-    .action-btn.liked {
-        color: #e74c3c;
-    }
-    
-    .action-btn.liked:hover {
-        background: rgba(231, 76, 60, 0.1);
-    }
-    
-    .comments-section {
-        padding: 0 20px 20px;
-        border-top: 1px solid #f0f0f0;
-        background: #fafafa;
-    }
-    
-    .comment {
-        display: flex;
-        padding: 15px 0;
-        border-bottom: 1px solid #ecf0f1;
-    }
-    
-    .comment:last-child {
-        border-bottom: none;
-    }
-    
-    .comment-avatar {
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        background: #bdc3c7;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 12px;
-        font-size: 14px;
-        font-weight: bold;
-    }
-    
-    .comment-content {
-        flex: 1;
-    }
-    
-    .comment-author {
-        font-weight: 600;
-        font-size: 14px;
-        margin-bottom: 5px;
-        color: #2c3e50;
-    }
-    
-    .comment-text {
-        color: #34495e;
-        font-size: 14px;
-        line-height: 1.5;
-    }
-    
-    .comment-time {
-        color: #95a5a6;
-        font-size: 12px;
-        margin-top: 5px;
-    }
-    
-    .add-comment {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 15px 0;
-        border-top: 1px solid #ecf0f1;
-    }
-    
-    .add-comment input {
-        flex: 1;
-        border: 1px solid #ddd;
-        border-radius: 25px;
-        padding: 10px 15px;
-        font-size: 14px;
-        outline: none;
-    }
-    
-    .add-comment input:focus {
-        border-color: #4361ee;
-    }
-    
-    .add-comment button {
-        background: #4361ee;
-        color: white;
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .add-comment button:hover {
-        background: #3651de;
-        transform: scale(1.05);
-    }
-    
-    .filter-tabs {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #ecf0f1;
-        padding-bottom: 15px;
-    }
-    
-    .filter-tab {
-        padding: 10px 20px;
-        border: 1px solid #ddd;
-        border-radius: 25px;
-        background: white;
-        color: #7f8c8d;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .filter-tab.active,
-    .filter-tab:hover {
-        background: #4361ee;
-        color: white;
-        border-color: #4361ee;
-        text-decoration: none;
-    }
-    
-    .create-post-btn {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: linear-gradient(135deg, #4361ee, #3651de);
-        color: white;
-        border: none;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        font-size: 20px;
-        box-shadow: 0 4px 20px rgba(67, 97, 238, 0.4);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        z-index: 1000;
-    }
-    
-    .create-post-btn:hover {
-        transform: scale(1.1);
-        box-shadow: 0 6px 25px rgba(67, 97, 238, 0.6);
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #7f8c8d;
-    }
-    
-    .empty-state i {
-        font-size: 64px;
-        margin-bottom: 20px;
-        color: #bdc3c7;
-    }
-    
-    .document-preview {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        padding: 20px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin: 15px 0;
-    }
-    
-    .document-icon {
-        width: 50px;
-        height: 50px;
-        background: #4361ee;
-        color: white;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    }
-    
-    .document-info h6 {
-        margin: 0;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-    
-    .document-info small {
-        color: #7f8c8d;
-    }
-    
-    .pinned-post {
-        border: 2px solid #f39c12;
-        position: relative;
-    }
-    
-    .pinned-post::before {
-        content: "📌 Pinned Post";
-        position: absolute;
-        top: -1px;
-        left: 20px;
-        background: #f39c12;
-        color: white;
-        padding: 5px 15px;
-        border-radius: 0 0 8px 8px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-    
-    .university-post {
-        border-left: 5px solid #17a2b8;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
-    }
-    
-    .announcement-post {
-        border-left: 5px solid #ffc107;
-        background: linear-gradient(135deg, #fff3cd 0%, #fef9e7 100%);
-        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
-    }
-    
-    .post-badges {
-        padding: 15px 20px 0 20px;
-    }
-    
-    .post-badges .badge {
-        margin-right: 10px;
-        font-size: 0.75rem;
-        padding: 6px 12px;
-    }
-    
-    .admin-controls {
-        border-top: 1px solid #e9ecef;
-        padding-top: 10px;
-        margin-top: 10px;
-    }
-    
-    .dropdown-header {
-        color: #6c757d !important;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        font-weight: 600;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="container">
-    <div class="social-feed-container">
-        <!-- Page Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2><i class="fas fa-users me-2"></i>Social Feed</h2>
-                <p class="text-muted mb-0">Connect with the AU community</p>
+<!-- Social Feed Header -->
+<div class="card slide-up">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle me-3" style="width: 40px; height: 40px;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <h1 class="display-title mb-0">Campus Feed</h1>
+                    <small class="text-muted">Connect with your community</small>
+                </div>
             </div>
-            <a href="{{ url_for('social.create_post') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Create Post
+            <a href="{{ url_for('social.create_post') }}" class="btn-gradient-primary btn-sm">
+                <i class="fas fa-plus me-2"></i>New Post
             </a>
         </div>
+    </div>
+</div>
 
-        <!-- Filter Tabs -->
-        <div class="filter-tabs">
-            <a href="{{ url_for('social.social_feed', filter='all') }}" 
-               class="filter-tab {{ 'active' if filter_type == 'all' else '' }}">
-                <i class="fas fa-globe me-2"></i>All Posts
-            </a>
-            <a href="{{ url_for('social.social_feed', filter='department') }}" 
-               class="filter-tab {{ 'active' if filter_type == 'department' else '' }}">
-                <i class="fas fa-building me-2"></i>My Department
-            </a>
-            <a href="{{ url_for('social.social_feed', filter='events') }}" 
-               class="filter-tab {{ 'active' if filter_type == 'events' else '' }}">
-                <i class="fas fa-calendar me-2"></i>Event Posts
-            </a>
-        </div>
-
-        <!-- Posts Feed -->
-        {% for post in posts.items %}
-        <div class="post-card {{ 'pinned-post' if post.is_pinned else '' }} {{ 'university-post' if post.is_university_post else '' }} {{ 'announcement-post' if post.is_announcement else '' }}">
-            <!-- Post Type Badges -->
-            {% if post.is_university_post or post.is_announcement %}
-            <div class="post-badges">
-                {% if post.is_university_post %}
-                <span class="badge bg-info">
-                    <i class="fas fa-university me-1"></i>University Post
-                </span>
-                {% endif %}
-                {% if post.is_announcement %}
-                <span class="badge bg-warning text-dark">
-                    <i class="fas fa-bullhorn me-1"></i>Official Announcement
-                </span>
-                {% endif %}
-            </div>
-            {% endif %}
-            
-            <!-- Post Header -->
-            <div class="post-header">
-                <div class="author-info">
-                    <div class="author-avatar">
-                        {{ post.author.first_name[0] if post.author else 'U' }}
+<!-- Posts Feed -->
+{% for post in posts %}
+    <div class="card fade-in">
+        <!-- Post Header -->
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center">
+                    <div class="icon-circle me-3" style="background: var(--primary-gradient); width: 48px; height: 48px;">
+                        {{ post.author.first_name[0] }}{{ post.author.last_name[0] }}
                     </div>
-                    <div class="author-details">
-                        <h6>{{ post.author.first_name }} {{ post.author.last_name if post.author else 'Unknown User' }}</h6>
-                        <small>
-                            <i class="fas fa-graduation-cap me-1"></i>
-                            {{ post.author.department if post.author and post.author.__class__.__name__ == 'Student' else post.author_type.title() }}
-                            {% if post.event %}
-                            • <i class="fas fa-calendar me-1"></i>{{ post.event.title }}
-                            {% endif %}
+                    <div>
+                        <h6 class="mb-0 fw-bold">{{ post.author.first_name }} {{ post.author.last_name }}</h6>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ post.created_at.strftime('%d %b %Y at %I:%M %p') }}
                         </small>
+                        {% if post.is_university_post %}
+                            <span class="badge ms-2" style="background: var(--warning-gradient); color: white;">University Post</span>
+                        {% endif %}
+                        {% if post.is_announcement %}
+                            <span class="badge ms-2" style="background: var(--secondary-gradient); color: white;">Announcement</span>
+                        {% endif %}
                     </div>
                 </div>
-                <div class="post-meta">
-                    {{ post.created_at.strftime('%d %b %Y, %I:%M %p') }}
-                    {% if post.can_edit(current_user) or current_user.__class__.__name__ == 'Admin' %}
-                    <div class="dropdown d-inline ms-2">
-                        <button class="btn btn-link btn-sm p-0" data-bs-toggle="dropdown">
-                            <i class="fas fa-ellipsis-h"></i>
+                
+                <!-- Admin Controls -->
+                {% if current_user.is_authenticated and current_user.__class__.__name__.lower() == 'admin' %}
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <ul class="dropdown-menu">
-                            {% if post.can_edit(current_user) %}
-                            <li><a class="dropdown-item" href="{{ url_for('social.edit_post', post_id=post.id) }}">
-                                <i class="fas fa-edit me-2"></i>Edit
-                            </a></li>
-                            {% endif %}
-                            
-                            {% if current_user.__class__.__name__ == 'Admin' %}
-                            <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">Admin Controls</h6></li>
                             <li><a class="dropdown-item" href="#" onclick="togglePin({{ post.id }})">
-                                <i class="fas fa-thumbtack me-2"></i>{{ 'Unpin' if post.is_pinned else 'Pin Post' }}
+                                <i class="fas fa-thumbtack me-2"></i>{{ 'Unpin' if post.is_pinned else 'Pin' }} Post
                             </a></li>
-                            {% if post.is_university_post %}
-                            <li><span class="dropdown-item-text text-info">
-                                <i class="fas fa-university me-2"></i>University Post
-                            </span></li>
-                            {% endif %}
-                            {% if post.is_announcement %}
-                            <li><span class="dropdown-item-text text-warning">
-                                <i class="fas fa-bullhorn me-2"></i>Official Announcement
-                            </span></li>
-                            {% endif %}
-                            {% endif %}
-                            
-                            {% if post.can_delete(current_user) %}
                             <li><a class="dropdown-item text-danger" href="#" onclick="deletePost({{ post.id }})">
                                 <i class="fas fa-trash me-2"></i>Delete Post
                             </a></li>
-                            {% endif %}
                         </ul>
                     </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Post Content -->
+        <div class="card-body">
+            {% if post.event_related %}
+                <div class="alert alert-success d-flex align-items-center mb-3">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    <span class="fw-semibold">Event Related Post</span>
+                </div>
+            {% endif %}
+            
+            <div class="post-text mb-3">
+                {{ post.content }}
+            </div>
+            
+            {% if post.media_path %}
+                <div class="post-media mb-3">
+                    {% if post.media_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp')) %}
+                        <img src="{{ url_for('static', filename='uploads/' + post.media_path) }}" 
+                             class="img-fluid rounded" alt="Post image">
+                    {% elif post.media_path.lower().endswith(('.mp4', '.webm', '.ogg')) %}
+                        <video controls class="w-100 rounded">
+                            <source src="{{ url_for('static', filename='uploads/' + post.media_path) }}" type="video/mp4">
+                        </video>
                     {% endif %}
                 </div>
-            </div>
-
-            <!-- Event Tag -->
-            {% if post.event %}
-            <div class="p-3 pb-0">
-                <div class="event-tag">
-                    <i class="fas fa-calendar me-1"></i>
-                    {{ post.event.title }} - {{ post.event.date.strftime('%d %b %Y') }}
-                </div>
-            </div>
             {% endif %}
-
-            <!-- Post Content -->
-            <div class="post-content">
-                <div class="post-text">{{ post.content }}</div>
-                
-                <!-- Media Content -->
-                {% if post.media_url %}
-                {% if post.media_type == 'image' %}
-                    <div class="post-media">
-                        <img src="{{ post.media_url }}" alt="Post image" onclick="openImageModal('{{ post.media_url }}')">
-                    </div>
-                {% elif post.media_type == 'video' %}
-                    <div class="post-media">
-                        <video controls preload="metadata">
-                            <source src="{{ post.media_url }}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                {% elif post.media_type == 'document' %}
-                    <div class="document-preview">
-                        <div class="document-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div class="document-info">
-                            <h6>Document</h6>
-                            <small>Click to download</small>
-                        </div>
-                        <a href="{{ post.media_url }}" target="_blank" class="btn btn-outline-primary btn-sm ms-auto">
-                            <i class="fas fa-download me-1"></i>Download
-                        </a>
-                    </div>
-                {% endif %}
-                {% endif %}
+        </div>
+        
+        <!-- Post Stats -->
+        <div class="card-body pt-0 pb-2">
+            <div class="d-flex justify-content-between text-muted small">
+                <span><i class="fas fa-thumbs-up me-1"></i>{{ post.likes_count or 0 }} likes</span>
+                <span><i class="fas fa-comments me-1"></i>{{ post.comments|length }} comments</span>
             </div>
-
-            <!-- Post Stats -->
-            {% if post.likes_count > 0 or post.comments_count > 0 or post.shares_count > 0 or post.views_count > 0 %}
-            <div class="post-stats">
-                {% if post.likes_count > 0 %}
-                    <i class="fas fa-heart text-danger me-1"></i>{{ post.likes_count }} likes
-                {% endif %}
-                {% if post.comments_count > 0 %}
-                    <i class="fas fa-comment ms-3 me-1"></i>{{ post.comments_count }} comments
-                {% endif %}
-                {% if post.shares_count > 0 %}
-                    <i class="fas fa-share ms-3 me-1"></i>{{ post.shares_count }} shares
-                {% endif %}
-                {% if post.views_count > 0 %}
-                    <i class="fas fa-eye ms-3 me-1"></i>{{ post.views_count }} views
-                {% endif %}
+        </div>
+        
+        <!-- Post Actions -->
+        <div class="card-body pt-0">
+            <div class="d-flex justify-content-around border-top pt-3">
+                <button class="btn btn-link text-muted flex-fill" onclick="toggleLike({{ post.id }})">
+                    <i class="fas fa-thumbs-up me-2"></i>Like
+                </button>
+                <button class="btn btn-link text-muted flex-fill" onclick="toggleComments({{ post.id }})">
+                    <i class="fas fa-comment me-2"></i>Comment
+                </button>
+                <button class="btn btn-link text-muted flex-fill" onclick="sharePost({{ post.id }})">
+                    <i class="fas fa-share me-2"></i>Share
+                </button>
             </div>
-            {% endif %}
+        </div>
+{% endfor %}
 
-            <!-- Post Actions -->
-            <div class="post-actions">
-                <button class="action-btn {{ 'liked' if post.is_liked_by(current_user) else '' }}" 
-                        onclick="toggleLike({{ post.id }})">
-                    <i class="fas fa-heart"></i>
-                    <span>{{ 'Unlike' if post.is_liked_by(current_user) else 'Like' }}</span>
-                </button>
-                
-                <button class="action-btn" onclick="toggleComments({{ post.id }})">
-                    <i class="fas fa-comment"></i>
-                    <span>Comment</span>
-                </button>
-                
-                <button class="action-btn" onclick="sharePost({{ post.id }})">
-                    <i class="fas fa-share"></i>
-                    <span>Share</span>
-                </button>
-                
-                <a class="action-btn" href="{{ url_for('social.post_details', post_id=post.id) }}">
-                    <i class="fas fa-external-link-alt"></i>
-                    <span>View</span>
-                </a>
-            </div>
-
-            <!-- Comments Section -->
-            <div class="comments-section" id="comments-{{ post.id }}" style="display: none;">
-                <!-- Recent Comments -->
-                {% for comment in post.get_recent_comments() %}
-                <div class="comment">
-                    <div class="comment-avatar">
-                        {{ comment.author.first_name[0] if comment.author else 'U' }}
+{% if not posts %}
+<div class="card text-center">
+    <div class="card-body py-5">
+        <div class="icon-circle mx-auto mb-3" style="background: var(--warning-gradient); width: 64px; height: 64px; font-size: 1.5rem;">
+            <i class="fas fa-comments"></i>
+        </div>
+        <h5>No Posts Yet</h5>
+        <p class="text-muted">Be the first to share something with your campus community!</p>
+        <a href="{{ url_for('social.create_post') }}" class="btn-gradient-primary">
+            <i class="fas fa-plus me-2"></i>Create Your First Post
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
                     </div>
                     <div class="comment-content">
                         <div class="comment-author">{{ comment.author.first_name if comment.author else 'Unknown' }}</div>
