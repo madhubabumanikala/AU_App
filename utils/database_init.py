@@ -103,21 +103,31 @@ def create_default_admin():
     # Check if admin already exists
     existing_admin = Admin.query.filter_by(email='admin@au.edu').first()
     if existing_admin:
-        logger.info("Default admin account already exists")
-        return
+        # Check if password hash is valid
+        if not existing_admin.password_hash or len(existing_admin.password_hash) < 10:
+            print("⚠️  Existing admin has invalid password hash, recreating...")
+            db.session.delete(existing_admin)
+            db.session.commit()
+        else:
+            print("✅ Default admin account already exists with valid hash")
+            logger.info("Default admin account already exists")
+            return
     
-    # Create default admin
+    # Create default admin with proper password hash
+    from werkzeug.security import generate_password_hash
+    
     admin = Admin(
         username='admin',
         first_name='System',
         last_name='Administrator',
         email='admin@au.edu',
         role='super_admin',
-        department='Administration'
+        department='Administration',
+        password_hash=generate_password_hash('admin123')
     )
-    admin.set_password('admin123')
     
     db.session.add(admin)
+    print("✅ Created default admin account: admin@au.edu / admin123")
     logger.info("Created default admin account: admin@au.edu / admin123")
 
 def check_database_health():
