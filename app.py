@@ -67,9 +67,7 @@ def create_app(config_name=None):
     from routes.admin import admin_bp
     from routes.api import api_bp
     from routes.social import social_bp
-    from routes.debug import debug_bp
     from routes.tasks import tasks_bp
-    from routes.tasks_debug import tasks_debug_bp
     
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(main_bp)
@@ -77,9 +75,7 @@ def create_app(config_name=None):
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(social_bp, url_prefix='/social')
-    app.register_blueprint(debug_bp)
     app.register_blueprint(tasks_bp, url_prefix='/tasks')
-    app.register_blueprint(tasks_debug_bp)
     
     # Add mobile context processor
     from utils.mobile_detector import mobile_context_processor
