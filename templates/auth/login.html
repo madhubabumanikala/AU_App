@@ -16,22 +16,22 @@
                         {{ form.hidden_tag() }}
                         
                         <!-- User Type Selection -->
-                        <div class="input-group">
+                        <div class="form-group mb-4">
                             <input type="hidden" name="user_type" value="student" id="user_type_hidden">
-                            <div class="card-grid card-grid-2" style="gap: 1rem;">
-                                <button type="button" class="btn btn-outline-primary d-flex align-items-center justify-content-center p-3 user-type-btn active" data-type="student">
+                            <div class="d-grid gap-2" style="grid-template-columns: 1fr 1fr;">
+                                <button type="button" class="btn btn-primary btn-lg d-flex align-items-center justify-content-center py-3 user-type-btn active" data-type="student">
                                     <i class="fas fa-user-graduate me-2"></i>Student
                                 </button>
-                                <button type="button" class="btn btn-outline-primary d-flex align-items-center justify-content-center p-3 user-type-btn" data-type="admin">
+                                <button type="button" class="btn btn-outline-primary btn-lg d-flex align-items-center justify-content-center py-3 user-type-btn" data-type="admin">
                                     <i class="fas fa-user-shield me-2"></i>Admin
                                 </button>
                             </div>
                         </div>
 
                         <!-- Email Field -->
-                        <div class="input-group">
-                            {{ form.email.label(class="form-label") }}
-                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Enter your email address") }}
+                        <div class="form-group mb-4">
+                            {{ form.email.label(class="form-label fw-semibold mb-2") }}
+                            {{ form.email(class="form-control form-control-lg" + (" is-invalid" if form.email.errors else ""), placeholder="Enter your email address") }}
                             {% if form.email.errors %}
                                 <div class="invalid-feedback">
                                     {% for error in form.email.errors %}
@@ -42,11 +42,11 @@
                         </div>
 
                         <!-- Password Field -->
-                        <div class="input-group">
-                            {{ form.password.label(class="form-label") }}
-                            <div class="d-flex">
+                        <div class="form-group mb-4">
+                            {{ form.password.label(class="form-label fw-semibold mb-2") }}
+                            <div class="input-group input-group-lg">
                                 {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter your secure password", id="password") }}
-                                <button class="btn btn-outline-secondary" type="button" id="toggle-password" style="border-radius: 0 8px 8px 0;">
+                                <button class="btn btn-outline-secondary" type="button" id="toggle-password">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -60,18 +60,20 @@
                         </div>
 
                         <!-- Remember Me -->
-                        <div class="mb-4">
+                        <div class="form-group mb-4">
                             <div class="form-check d-flex align-items-center">
-                                {{ form.remember_me(class="form-check-input me-2") }}
-                                {{ form.remember_me.label(class="form-check-label") }}
+                                {{ form.remember_me(class="form-check-input me-3", style="transform: scale(1.2);") }}
+                                {{ form.remember_me.label(class="form-check-label fw-medium") }}
                             </div>
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="d-grid">
-                            <button type="submit" class="btn-gradient-primary btn-lg">
-                                <i class="fas fa-sign-in-alt me-2"></i>Login
-                            </button>
+                        <div class="form-group mb-4">
+                            <div class="d-grid">
+                                <button type="submit" class="btn-gradient-primary btn-lg py-3">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </button>
+                            </div>
                         </div>
                     </form>
 
