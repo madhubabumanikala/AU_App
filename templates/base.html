@@ -26,25 +26,17 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Detect mobile and load appropriate CSS -->
-    <script>
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-        if (isMobile) {
-            document.write('<link rel="stylesheet" href="{{ url_for("static", filename="css/mobile.css") }}">');
-            document.documentElement.classList.add('mobile-device');
-        } else {
-            document.write('<link rel="stylesheet" href="{{ url_for("static", filename="css/style.css") }}">');
-            document.documentElement.classList.add('desktop-device');
-        }
-    </script>
+    <!-- Mobile-First Design System -->
+    <link href="{{ url_for('static', filename='css/mobile-first.css') }}" rel="stylesheet">
+    
+    <!-- Legacy CSS (fallback) -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <!-- Mobile/Desktop detection handled via mobile_detector utility -->
-
-    <!-- Desktop Navigation (fallback) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top hide-on-mobile">
+<body class="app-container">
+    <!-- Mobile-First Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('main.index') }}">
                 <i class="fas fa-calendar-alt me-2"></i>AU Events
@@ -162,7 +154,7 @@
     {% endwith %}
 
     <!-- Main Content -->
-    <main class="flex-shrink-0">
+    <main class="mobile-container fade-in">
         {% block content %}{% endblock %}
     </main>
 
