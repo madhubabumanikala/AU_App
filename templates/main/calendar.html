@@ -73,6 +73,11 @@
                                                         {% endif %}
                                                     {% endfor %}
                                                     
+                                                    <!-- Debug: Show task count for this day -->
+                                                    {% if day_tasks %}
+                                                    <!-- DEBUG: {{ day_tasks|length }} tasks found for {{ current_date }} -->
+                                                    {% endif %}
+                                                    
                                                     <div class="d-flex justify-content-between mb-1">
                                                         <span class="fw-bold">{{ day }}</span>
                                                         {% if day_events or day_tasks %}
@@ -257,6 +262,19 @@
     </div>
 </div>
 
+<!-- Debug Info (Remove in production) -->
+<div class="alert alert-info mt-3" id="debugInfo" style="display: none;">
+    <h6>Debug Information:</h6>
+    <p><strong>Total tasks loaded:</strong> {{ tasks|length }}</p>
+    <p><strong>Tasks details:</strong></p>
+    <ul>
+        {% for task in tasks %}
+        <li>{{ task.title }} - {{ task.date }} (User: {{ task.user_id }}, Type: {{ task.user_type }})</li>
+        {% endfor %}
+    </ul>
+    <button class="btn btn-sm btn-secondary" onclick="document.getElementById('debugInfo').style.display='none'">Hide Debug</button>
+</div>
+
 <!-- Add Task Modal -->
 <div class="modal fade" id="addTaskModal" tabindex="-1">
     <div class="modal-dialog">
@@ -439,6 +457,33 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         colorInput.value = priorityColors[this.value] || '#007bff';
     });
+    
+    // Add debug button to header
+    const header = document.querySelector('.d-flex.justify-content-between.align-items-center');
+    if (header) {
+        const debugBtn = document.createElement('button');
+        debugBtn.className = 'btn btn-sm btn-warning ms-2';
+        debugBtn.innerHTML = '<i class="fas fa-bug me-1"></i>Debug';
+        debugBtn.onclick = function() {
+            const debugInfo = document.getElementById('debugInfo');
+            debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
+        };
+        header.appendChild(debugBtn);
+    }
+    
+    // Debug API call to check task data
+    console.log('Calendar loaded. Checking task data...');
+    fetch('/debug/tasks/info')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Task Debug Info:', data);
+            if (data.total_tasks === 0) {
+                console.warn('No tasks found for current user');
+            } else {
+                console.log(`Found ${data.total_tasks} total tasks, ${data.monthly_tasks} for current month`);
+            }
+        })
+        .catch(error => console.error('Debug API error:', error));
 });
 </script>
 {% endblock %}
