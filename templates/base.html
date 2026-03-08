@@ -99,18 +99,11 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- COMPREHENSIVE DEBUG -->
-                <div style="background: red; color: white; padding: 5px; font-size: 11px; margin: 5px;">
-                    ENDPOINT: "{{ request.endpoint or 'None' }}" | 
-                    URL: "{{ request.url or 'None' }}" | 
-                    PATH: "{{ request.path or 'None' }}"
-                </div>
                 <ul class="navbar-nav me-auto">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint == 'main.dashboard' or (request.endpoint == 'main.index' and current_user.is_authenticated) %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
+                            <a class="nav-link {% if request.endpoint == 'main.dashboard' or request.path == '/dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">
                                 <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                                {% if request.endpoint == 'main.dashboard' %}<small style="color:red;">[ACTIVE]</small>{% endif %}
                             </a>
                         </li>
                         <li class="nav-item">
@@ -132,13 +125,11 @@
                         <li class="nav-item">
                             <a class="nav-link {% if request.endpoint == 'main.my_events' %}active{% endif %}" href="{{ url_for('main.my_events') }}">
                                 <i class="fas fa-user-check me-1"></i>My Events
-                                {% if request.endpoint == 'main.my_events' %}<small style="color:red;">[ACTIVE]</small>{% endif %}
                             </a>
                         </li>
                         <li class="nav-item position-relative">
-                            <a class="nav-link {% if request.endpoint == 'main.notifications' or request.endpoint == 'main.mark_notification_read' %}active{% endif %}" href="{{ url_for('main.notifications') }}">
+                            <a class="nav-link {% if request.endpoint == 'main.notifications' %}active{% endif %}" href="{{ url_for('main.notifications') }}">
                                 <i class="fas fa-bell me-1"></i>Notifications
-                                {% if request.endpoint == 'main.notifications' %}<small style="color:red;">[ACTIVE]</small>{% endif %}
                                 {% if current_user.unread_notifications_count > 0 %}
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                     {{ current_user.unread_notifications_count }}
