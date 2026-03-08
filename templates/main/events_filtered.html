@@ -16,12 +16,12 @@
                 </div>
             </div>
             
-            <!-- Filter Options -->
-            <div class="d-flex gap-3">
-                <form method="GET" class="d-flex gap-2 flex-fill">
-                    <div class="input-group">
-                        <label for="department" class="form-label">Department</label>
-                        <select class="form-control" id="department" name="department">
+            <!-- Filter Form -->
+            <form method="GET" class="w-100">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="department" class="form-label small text-muted">Department</label>
+                        <select class="form-select" id="department" name="department">
                             <option value="">All Departments</option>
                             <option value="Computer Science">Computer Science</option>
                             <option value="Electronics & Communication">Electronics & Communication</option>
@@ -34,12 +34,11 @@
                             <option value="Chemistry">Chemistry</option>
                             <option value="Mathematics">Mathematics</option>
                             <option value="English">English</option>
-                            <option value="All Departments">All Departments</option>
                         </select>
                     </div>
-                    <div class="input-group">
-                        <label for="category" class="form-label">Category</label>
-                        <select class="form-control" id="category" name="category">
+                    <div class="col-md-2">
+                        <label for="category" class="form-label small text-muted">Category</label>
+                        <select class="form-select" id="category" name="category">
                             <option value="">All Categories</option>
                             <option value="technical">Technical</option>
                             <option value="cultural">Cultural</option>
@@ -47,37 +46,40 @@
                             <option value="seminar">Seminar</option>
                         </select>
                     </div>
+                    <div class="col-md-2">
+                        <label for="date_filter" class="form-label small text-muted">Date Filter</label>
+                        <select class="form-select" id="date_filter" name="date_filter">
+                            <option value="">All Dates</option>
+                            <option value="today">Today</option>
+                            <option value="tomorrow">Tomorrow</option>
+                            <option value="this_week">This Week</option>
+                            <option value="next_week">Next Week</option>
+                            <option value="this_month">This Month</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="search" class="form-label small text-muted">Search</label>
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Event title or description">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="d-flex gap-1">
+                            <button type="submit" class="btn btn-primary btn-sm flex-fill">
+                                <i class="fas fa-filter me-1"></i>Filter Events
+                            </button>
+                            <a href="{{ url_for('main.events') }}" class="btn btn-outline-secondary btn-sm" title="Clear">
+                                <i class="fas fa-times"></i>Clear
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="date_filter" class="form-label">Date Filter</label>
-                    <select class="form-control" id="date_filter" name="date_filter">
-                        <option value="">All Dates</option>
-                        <option value="today">Today</option>
-                        <option value="tomorrow">Tomorrow</option>
-                        <option value="this_week">This Week</option>
-                        <option value="next_week">Next Week</option>
-                        <option value="this_month">This Month</option>
-                    </select>
+                <div class="row mt-2">
+                    <div class="col-12 text-end">
+                        <a href="{{ url_for('main.calendar_view') }}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-calendar me-1"></i>Calendar
+                        </a>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label for="search" class="form-label">Search</label>
-                    <input type="text" class="form-control" id="search" name="search" placeholder="Event title or description">
-                </div>
-            </div>
-            
-            <div class="d-flex justify-content-center gap-2">
-                <button type="submit" class="btn-gradient-primary">
-                    <i class="fas fa-filter me-2"></i>Filter Events
-                </button>
-                <a href="{{ url_for('main.events') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-times me-2"></i>Clear
-                </a>
-                <a href="{{ url_for('main.calendar_view') }}" class="btn-gradient-secondary">
-                    <i class="fas fa-calendar me-2"></i>Calendar
-                </a>
-            </div>
-        </form>
+            </form>
     </div>
 </div>
 
