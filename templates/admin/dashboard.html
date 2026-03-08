@@ -29,46 +29,56 @@
 </div>
 
 <!-- Statistics Overview -->
-<div class="card-grid card-grid-4">
-    <div class="card text-center" style="background: var(--primary-gradient); color: white;">
-        <div class="card-body" style="padding: 30px 20px;">
-            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 1.5rem;">
-                <i class="fas fa-calendar-alt"></i>
+<div style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 15px; width: 100%; margin-bottom: 2rem;">
+    <div style="flex: 1; min-width: 0; width: 25%;">
+        <div class="card text-center shadow-sm" style="height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; font-size: 1.1rem;">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3 class="text-white mb-2 fw-bold">{{ total_events }}</h3>
+                <p class="mb-1 fw-semibold text-white">Total Events</p>
+                <small class="text-white-50">Available</small>
             </div>
-            <h4 class="mb-1 text-center">{{ total_events }}</h4>
-            <p class="mb-0 small opacity-75 text-center">Total Events</p>
-    </div>
-    </div>
-    
-    <div class="card text-center" style="background: var(--success-gradient); color: white;">
-        <div class="card-body" style="padding: 30px 20px;">
-            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 1.5rem;">
-                <i class="fas fa-calendar-check"></i>
-            </div>
-            <h4 class="mb-1 text-center">{{ active_events }}</h4>
-            <p class="mb-0 small opacity-75 text-center">Active Events</p>
         </div>
     </div>
-    </div>
     
-    <div class="card text-center" style="background: var(--info-gradient); color: white;">
-        <div class="card-body" style="padding: 30px 20px;">
-            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 1.5rem;">
-                <i class="fas fa-users"></i>
+    <div style="flex: 1; min-width: 0; width: 25%;">
+        <div class="card text-center shadow-sm" style="height: 180px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; font-size: 1.1rem;">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h3 class="text-white mb-2 fw-bold">{{ active_events }}</h3>
+                <p class="mb-1 fw-semibold text-white">Active Events</p>
+                <small class="text-white-50">Running</small>
             </div>
-            <h4 class="mb-1 text-center">{{ total_students }}</h4>
-            <p class="mb-0 small opacity-75 text-center">Total Students</p>
         </div>
     </div>
+    
+    <div style="flex: 1; min-width: 0; width: 25%;">
+        <div class="card text-center shadow-sm" style="height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; font-size: 1.1rem;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="text-white mb-2 fw-bold">{{ total_students }}</h3>
+                <p class="mb-1 fw-semibold text-white">Total Students</p>
+                <small class="text-white-50">Registered</small>
+            </div>
+        </div>
     </div>
     
-    <div class="card text-center" style="background: var(--warning-gradient); color: white;">
-        <div class="card-body" style="padding: 30px 20px;">
-            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 1.5rem;">
-                <i class="fas fa-clipboard-list"></i>
+    <div style="flex: 1; min-width: 0; width: 25%;">
+        <div class="card text-center shadow-sm" style="height: 180px; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 50px; height: 50px; font-size: 1.1rem;">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h3 class="text-white mb-2 fw-bold">{{ total_registrations }}</h3>
+                <p class="mb-1 fw-semibold text-white">Registrations</p>
+                <small class="text-white-50">Total</small>
             </div>
-            <h4 class="mb-1 text-center">{{ total_registrations }}</h4>
-            <p class="mb-0 small opacity-75 text-center">Registrations</p>
         </div>
     </div>
 </div>
