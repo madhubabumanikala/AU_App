@@ -91,7 +91,7 @@
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                <i class="fas fa-calendar-alt me-2"></i>AU Events - TEMPLATE WORKING
+                <i class="fas fa-calendar-alt me-2"></i>AU Events
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -99,6 +99,10 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- DEBUG: Show current endpoint -->
+                <div style="background: yellow; color: black; padding: 2px 8px; font-size: 10px; margin: 5px;">
+                    DEBUG: {{ request.endpoint }} | {{ request.url_rule.rule if request.url_rule else 'No rule' }}
+                </div>
                 <ul class="navbar-nav me-auto">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
