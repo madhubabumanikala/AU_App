@@ -6,26 +6,24 @@
 <style>
 .dashboard-stats {
     display: flex !important;
+    flex-direction: row !important;
     flex-wrap: nowrap !important;
-    gap: 1rem !important;
+    gap: 15px !important;
     width: 100% !important;
     margin-bottom: 2rem !important;
+    align-items: stretch !important;
 }
 .dashboard-stats .stat-card {
-    flex: 1 !important;
-    min-width: 0 !important;
+    flex: 1 1 25% !important;
+    min-width: 200px !important;
     max-width: 25% !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
-.dashboard-stats .card {
+.dashboard-stats .stat-card .card {
     height: 180px !important;
-}
-@media (max-width: 768px) {
-    .dashboard-stats {
-        flex-wrap: wrap !important;
-    }
-    .dashboard-stats .stat-card {
-        max-width: 48% !important;
-    }
+    flex: 1 !important;
+    margin: 0 !important;
 }
 </style>
 {% endblock %}
@@ -41,9 +39,9 @@
 </div>
 
 <!-- Dashboard Stats -->
-<div class="dashboard-stats">
-    <div class="stat-card">
-        <div class="card text-center shadow-sm">
+<div style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 15px; width: 100%; margin-bottom: 2rem;">
+    <div style="flex: 1; min-width: 0; width: 25%;">
+        <div class="card text-center shadow-sm" style="height: 180px;">
             <div class="card-body d-flex flex-column justify-content-center">
                 <div class="icon-circle mx-auto mb-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 50px; height: 50px; font-size: 1.1rem;">
                     <i class="fas fa-calendar-alt"></i>
@@ -55,8 +53,8 @@
         </div>
     </div>
     
-    <div class="stat-card">
-        <div class="card text-center shadow-sm">
+    <div style="flex: 1; min-width: 0; width: 25%;">
+        <div class="card text-center shadow-sm" style="height: 180px;">
             <div class="card-body d-flex flex-column justify-content-center">
                 <div class="icon-circle mx-auto mb-3" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); width: 50px; height: 50px; font-size: 1.1rem;">
                     <i class="fas fa-calendar-check"></i>
@@ -68,8 +66,8 @@
         </div>
     </div>
     
-    <div class="stat-card">
-        <div class="card text-center shadow-sm">
+    <div style="flex: 1; min-width: 0; width: 25%;">
+        <div class="card text-center shadow-sm" style="height: 180px;">
             <div class="card-body d-flex flex-column justify-content-center">
                 <div class="icon-circle mx-auto mb-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 50px; height: 50px; font-size: 1.1rem;">
                     <i class="fas fa-users"></i>
@@ -81,8 +79,8 @@
         </div>
     </div>
     
-    <div class="stat-card">
-        <div class="card text-center shadow-sm">
+    <div style="flex: 1; min-width: 0; width: 25%;">
+        <div class="card text-center shadow-sm" style="height: 180px;">
             <div class="card-body d-flex flex-column justify-content-center">
                 <div class="icon-circle mx-auto mb-3" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); width: 50px; height: 50px; font-size: 1.1rem;">
                     <i class="fas fa-user-plus"></i>
