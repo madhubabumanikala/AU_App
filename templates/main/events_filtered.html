@@ -61,16 +61,13 @@
                         <label for="search" class="form-label small text-muted">Search</label>
                         <input type="text" class="form-control form-control-sm" id="search" name="search" placeholder="Event title or description">
                     </div>
-                    <div class="col-lg-3 col-md-12">
-                        <div class="d-flex gap-1 justify-content-end">
+                    <div class="col-lg-2 col-md-12">
+                        <div class="d-flex gap-2 justify-content-end">
                             <button type="submit" class="btn btn-primary btn-sm">
                                 <i class="fas fa-filter me-1"></i>Filter Events
                             </button>
                             <a href="{{ url_for('main.events') }}" class="btn btn-outline-secondary btn-sm">
                                 <i class="fas fa-times me-1"></i>Clear
-                            </a>
-                            <a href="{{ url_for('main.calendar_view') }}" class="btn btn-outline-info btn-sm">
-                                <i class="fas fa-calendar me-1"></i>Calendar
                             </a>
                         </div>
                     </div>
