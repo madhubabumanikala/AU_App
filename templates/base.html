@@ -99,40 +99,36 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- DEBUG: Show current endpoint -->
-                <div style="background: yellow; color: black; padding: 2px 8px; font-size: 10px; margin: 5px;">
-                    DEBUG: {{ request.endpoint }} | {{ request.url_rule.rule if request.url_rule else 'No rule' }}
-                </div>
                 <ul class="navbar-nav me-auto">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link {{ 'active' if request.endpoint in ['main.dashboard', 'main.index'] or request.url_rule.rule == '/dashboard' else '' }}" href="{{ url_for('main.dashboard') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'main.dashboard' else '' }}" href="{{ url_for('main.dashboard') }}">
                                 <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ 'active' if 'events' in request.endpoint and 'my_events' not in request.endpoint else '' }}" href="{{ url_for('main.events') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'main.events' else '' }}" href="{{ url_for('main.events') }}">
                                 <i class="fas fa-calendar me-1"></i>Events
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ 'active' if 'social' in request.endpoint else '' }}" href="{{ url_for('social.social_feed') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'social.social_feed' else '' }}" href="{{ url_for('social.social_feed') }}">
                                 <i class="fas fa-users me-1"></i>Social
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ 'active' if 'calendar' in request.endpoint else '' }}" href="{{ url_for('main.calendar_view') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'main.calendar_view' else '' }}" href="{{ url_for('main.calendar_view') }}">
                                 <i class="fas fa-calendar-week me-1"></i>Calendar
                             </a>
                         </li>
                         {% if current_user.is_authenticated and not current_user.is_admin %}
                         <li class="nav-item">
-                            <a class="nav-link {{ 'active' if 'my_events' in request.endpoint else '' }}" href="{{ url_for('main.my_events') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'main.my_events' else '' }}" href="{{ url_for('main.my_events') }}">
                                 <i class="fas fa-user-check me-1"></i>My Events
                             </a>
                         </li>
                         <li class="nav-item position-relative">
-                            <a class="nav-link {{ 'active' if 'notification' in request.endpoint else '' }}" href="{{ url_for('main.notifications') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'main.notifications' else '' }}" href="{{ url_for('main.notifications') }}">
                                 <i class="fas fa-bell me-1"></i>Notifications
                                 {% if current_user.unread_notifications_count > 0 %}
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
