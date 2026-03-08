@@ -33,6 +33,18 @@
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     
     {% block extra_css %}{% endblock %}
+    
+    <style>
+    .nav-link.active {
+        background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%) !important;
+        color: white !important;
+        border-radius: 25px !important;
+        font-weight: 600 !important;
+    }
+    .nav-link.active i {
+        color: white !important;
+    }
+    </style>
 </head>
 <body class="app-container">
     <!-- Mobile-First Navigation -->
@@ -50,33 +62,33 @@
                 <ul class="navbar-nav me-auto">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'main.dashboard' else '' }}" href="{{ url_for('main.dashboard') }}">
                                 <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.events') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'main.events' else '' }}" href="{{ url_for('main.events') }}">
                                 <i class="fas fa-calendar me-1"></i>Events
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('social.social_feed') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'social.social_feed' else '' }}" href="{{ url_for('social.social_feed') }}">
                                 <i class="fas fa-users me-1"></i>Social
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.calendar_view') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'main.calendar_view' else '' }}" href="{{ url_for('main.calendar_view') }}">
                                 <i class="fas fa-calendar-week me-1"></i>Calendar
                             </a>
                         </li>
                         {% if current_user.is_authenticated and not current_user.is_admin %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.my_events') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'main.my_events' else '' }}" href="{{ url_for('main.my_events') }}">
                                 <i class="fas fa-user-check me-1"></i>My Events
                             </a>
                         </li>
                         <li class="nav-item position-relative">
-                            <a class="nav-link" href="{{ url_for('main.notifications') }}">
+                            <a class="nav-link {{ 'active' if request.endpoint == 'main.notifications' else '' }}" href="{{ url_for('main.notifications') }}">
                                 <i class="fas fa-bell me-1"></i>Notifications
                                 {% if current_user.unread_notifications_count > 0 %}
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
