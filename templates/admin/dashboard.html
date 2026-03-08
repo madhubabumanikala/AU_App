@@ -20,7 +20,7 @@
                 <a href="{{ url_for('admin.create_event') }}" class="btn-gradient-primary btn-sm">
                     <i class="fas fa-plus me-1"></i>Event
                 </a>
-                <a href="{{ url_for('admin.register') }}" class="btn-gradient-secondary btn-sm">
+                <a href="{{ url_for('admin.register_admin') }}" class="btn-gradient-secondary btn-sm">
                     <i class="fas fa-user-plus me-1"></i>Admin
                 </a>
             </div>
@@ -29,43 +29,46 @@
 </div>
 
 <!-- Statistics Overview -->
-<div class="card-grid card-grid-2 card-grid-4">
+<div class="card-grid card-grid-4">
     <div class="card text-center" style="background: var(--primary-gradient); color: white;">
-        <div class="card-body">
-            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 48px; height: 48px;">
+        <div class="card-body" style="padding: 30px 20px;">
+            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 1.5rem;">
                 <i class="fas fa-calendar-alt"></i>
             </div>
-            <h4 class="mb-1">{{ total_events }}</h4>
-            <p class="mb-0 small opacity-75">Total Events</p>
+            <h4 class="mb-1 text-center">{{ total_events }}</h4>
+            <p class="mb-0 small opacity-75 text-center">Total Events</p>
+    </div>
     </div>
     
     <div class="card text-center" style="background: var(--success-gradient); color: white;">
-        <div class="card-body">
-            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 48px; height: 48px;">
+        <div class="card-body" style="padding: 30px 20px;">
+            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 1.5rem;">
                 <i class="fas fa-calendar-check"></i>
             </div>
-            <h4 class="mb-1">{{ active_events }}</h4>
-            <p class="mb-0 small opacity-75">Active Events</p>
+            <h4 class="mb-1 text-center">{{ active_events }}</h4>
+            <p class="mb-0 small opacity-75 text-center">Active Events</p>
         </div>
+    </div>
     </div>
     
     <div class="card text-center" style="background: var(--info-gradient); color: white;">
-        <div class="card-body">
-            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 48px; height: 48px;">
+        <div class="card-body" style="padding: 30px 20px;">
+            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 1.5rem;">
                 <i class="fas fa-users"></i>
             </div>
-            <h4 class="mb-1">{{ total_students }}</h4>
-            <p class="mb-0 small opacity-75">Total Students</p>
+            <h4 class="mb-1 text-center">{{ total_students }}</h4>
+            <p class="mb-0 small opacity-75 text-center">Total Students</p>
         </div>
+    </div>
     </div>
     
     <div class="card text-center" style="background: var(--warning-gradient); color: white;">
-        <div class="card-body">
-            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 48px; height: 48px;">
-                <i class="fas fa-user-check"></i>
+        <div class="card-body" style="padding: 30px 20px;">
+            <div class="icon-circle mx-auto mb-3" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 1.5rem;">
+                <i class="fas fa-clipboard-list"></i>
             </div>
-            <h4 class="mb-1">{{ total_registrations }}</h4>
-            <p class="mb-0 small opacity-75">Registrations</p>
+            <h4 class="mb-1 text-center">{{ total_registrations }}</h4>
+            <p class="mb-0 small opacity-75 text-center">Registrations</p>
         </div>
     </div>
 </div>

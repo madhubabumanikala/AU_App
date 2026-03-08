@@ -88,14 +88,19 @@ def events():
 def create_event():
     form = EventForm()
     
+    print(f"DEBUG: Form method: {request.method}")
+    print(f"DEBUG: Form data: {request.form}")
+    print(f"DEBUG: Form files: {request.files}")
+    
     if form.validate_on_submit():
+        print("DEBUG: Form validation passed")
         # Handle poster upload
         poster_filename = None
-        if form.poster.data:
-            filename = secure_filename(form.poster.data.filename)
+        if form.poster_image.data:
+            filename = secure_filename(form.poster_image.data.filename)
             poster_filename = f"event_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{filename}"
             poster_path = os.path.join(current_app.config['UPLOAD_FOLDER'], poster_filename)
-            form.poster.data.save(poster_path)
+            form.poster_image.data.save(poster_path)
         
         # Create event
         event = Event(
@@ -128,8 +133,13 @@ def create_event():
             flash('Event created but notifications failed to send', 'warning')
         
         return redirect(url_for('admin.events'))
-    
-    return render_template('admin/create_event.html', form=form)
+    else:
+        print(f"DEBUG: Form validation failed: {form.errors}")
+        if request.method == 'POST':
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(f"DEBUG: {field.name} error: {error}")
+        return render_template('admin/create_event.html', form=form)
 
 @admin_bp.route('/events/<int:event_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -140,17 +150,17 @@ def edit_event(event_id):
     
     if form.validate_on_submit():
         # Handle poster upload
-        if form.poster.data:
+        if form.poster_image.data:
             # Delete old poster if exists
             if event.poster_image:
                 old_poster_path = os.path.join(current_app.config['UPLOAD_FOLDER'], event.poster_image)
                 if os.path.exists(old_poster_path):
                     os.remove(old_poster_path)
             
-            filename = secure_filename(form.poster.data.filename)
+            filename = secure_filename(form.poster_image.data.filename)
             poster_filename = f"event_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{filename}"
             poster_path = os.path.join(current_app.config['UPLOAD_FOLDER'], poster_filename)
-            form.poster.data.save(poster_path)
+            form.poster_image.data.save(poster_path)
             event.poster_image = poster_filename
         
         # Update event

@@ -3,6 +3,8 @@
 {% block title %}My Profile - AU Event System{% endblock %}
 
 {% block content %}
+{% import datetime %}
+{% set today = datetime.date.today() %}
 <!-- Profile Header -->
 <div class="card slide-up">
     <div class="card-header" style="background: var(--primary-gradient); color: white;">

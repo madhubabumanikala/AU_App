@@ -135,7 +135,7 @@
                 </div>
                 
                 {% for event in registered_events[:3] %}
-                <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">
+                <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">>
                     <div class="icon" style="background: linear-gradient(135deg, #198754, #157347);">
                         <i class="fas fa-calendar"></i>
                     </div>
@@ -165,7 +165,235 @@
                 </div>
                 
                 {% for event in recommended_events[:3] %}
-                <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">
+                <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">>
+                    <div class="icon" style="background: linear-gradient(135deg, var(--mobile-primary), #3651de);">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="content">
+                        <h4>{{ event.title }}</h4>
+                        <p>
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {{ event.location }}
+                        </p>
+                        <div class="tags">
+                            <span class="tag department">{{ event.department }}</span>
+                        </div>
+                    </div>
+                    <div class="arrow">
+                        <button class="mobile-btn-small" onclick="event.stopPropagation(); registerForEvent({{ event.id }})">
+                            <i class="fas fa-plus me-1"></i>Register
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Recent Notifications -->
+            {% if notifications %}
+            <div class="mobile-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3><i class="fas fa-bell me-2"></i>Recent Notifications</h3>
+                    <a href="{{ url_for('main.notifications') }}" class="text-primary" style="font-size: 14px;">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                
+                {% for notification in notifications[:3] %}
+                <div class="mobile-list-item {{ 'opacity-75' if notification.is_read else '' }}">
+                    <div class="icon" style="background: {{ '#ffc107' if not notification.is_read else '#6c757d' }};">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="content">
+                        <h4>{{ notification.title }}</h4>
+                        <p>{{ notification.message[:50] }}...</p>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ notification.created_at.strftime('%d %b, %I:%M %p') }}
+                        </small>
+                    </div>
+                    {% if not notification.is_read %}
+                    <div class="arrow">
+                        <span class="badge bg-warning">New</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Recent Social Posts -->
+            <div class="mobile-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3><i class="fas fa-users me-2"></i>Community Feed</h3>
+                    <a href="{{ url_for('social.social_feed') }}" class="text-primary" style="font-size: 14px;">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                
+                <div id="recentPosts">
+                    <!-- Posts will be loaded via JavaScript -->
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('social.create_post') }}" class="mobile-btn mobile-btn-outline">
+                        <i class="fas fa-plus me-2"></i>Share Something
+                    </a>
+                </div>
+            </div>
+
+            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Dashboard - AU Events</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4361ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/mobile.css') }}" rel="stylesheet">
+</head>
+<body class="mobile-body">
+    <div class="mobile-container">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="mobile-logo">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h1 class="mobile-title">AU Events</h1>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="mobile-btn-icon" onclick="toggleNotifications()">
+                        <i class="fas fa-bell"></i>
+                        {% if current_user.unread_notifications_count > 0 %}
+                            <span class="notification-badge">{{ current_user.unread_notifications_count }}</span>
+                        {% endif %}
+                    </button>
+                    <button class="mobile-btn-icon" onclick="toggleProfileMenu()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="mobile-main">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mobile-alert mobile-alert-{{ 'danger' if category == 'error' else category }}">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'info-circle' }}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Welcome Section -->
+            <div class="mobile-card">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                         style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--mobile-primary), #3651de); color: white;">
+                        <i class="fas fa-user fa-2x"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-1">Welcome back, {{ current_user.first_name }}!</h3>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-graduation-cap me-2"></i>
+                            {{ current_user.department }} • Year {{ current_user.year }}
+                        </p>
+                        <small class="text-success">
+                            <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
+                            Online
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>{{ registered_events|length if registered_events else 0 }}</h4>
+                    <p><i class="fas fa-calendar-check"></i> Registered</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #198754, #157347);">
+                    <h4>{{ recommended_events|length if recommended_events else 0 }}</h4>
+                    <p><i class="fas fa-star"></i> For You</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffc107, #e0a800);">
+                    <h4>{{ notifications|length if notifications else 0 }}</h4>
+                    <p><i class="fas fa-bell"></i> Alerts</p>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #6c757d, #495057);">
+                    <h4>{{ upcoming_events|length if upcoming_events else 0 }}</h4>
+                    <p><i class="fas fa-calendar-alt"></i> Upcoming</p>
+                </div>
+            </div>
+
+            <!-- Your Registered Events -->
+            {% if registered_events %}
+            <div class="mobile-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3><i class="fas fa-calendar-check me-2"></i>Your Events</h3>
+                    <a href="{{ url_for('main.my_events') }}" class="text-primary" style="font-size: 14px;">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                
+                {% for event in registered_events[:3] %}
+                <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">>
+                    <div class="icon" style="background: linear-gradient(135deg, #198754, #157347);">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="content">
+                        <h4>{{ event.title }}</h4>
+                        <p>
+                            <i class="fas fa-clock me-1"></i>
+                            {{ event.date.strftime('%d %b') }} at {{ event.time.strftime('%I:%M %p') }}
+                        </p>
+                    </div>
+                    <div class="arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Recommended Events -->
+            {% if recommended_events %}
+            <div class="mobile-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3><i class="fas fa-star me-2"></i>Recommended for You</h3>
+                    <a href="{{ url_for('main.events', department=current_user.department) }}" class="text-primary" style="font-size: 14px;">
+                        More <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                
+                {% for event in recommended_events[:3] %}
+                <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">>
                     <div class="icon" style="background: linear-gradient(135deg, var(--mobile-primary), #3651de);">
                         <i class="fas fa-star"></i>
                     </div>
@@ -250,10 +478,41 @@
             <!-- Today's Events -->
             <div class="mobile-card">
                 <h3><i class="fas fa-calendar-day me-2"></i>Today's Events</h3>
-                {% set today_events = upcoming_events|selectattr('date', 'equalto', today)|list if upcoming_events else [] %}
+                {% set now = datetime.datetime.now() %}
+                {% set today = now.date() %}
+                {% set today_events = [] %}
+                {% for event in upcoming_events %}
+                    {% if event.date == datetime.date.today() %}
+                        {% set today_events = today_events + [event] %}
+                    {% endif %}
+                {% endfor %}
                 {% if today_events %}
                     {% for event in today_events %}
-                    <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">
+                    <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">>
+                        <div class="icon" style="background: linear-gradient(135deg, #dc3545, #b02a37);">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="content">
+                            <h4>{{ event.title }}</h4>
+                            <p>
+                                <i class="fas fa-clock me-1"></i>
+                                {{ event.time.strftime('%I:%M %p') }} • {{ event.location }}
+                            </p>
+                        </div>
+                        <div class="arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-calendar-times" style="font-size: 32px; color: var(--mobile-text-secondary);"></i>
+                        <p class="text-muted mt-2 mb-0">No events scheduled for today</p>
+                    </div>
+                {% endif %}
+            </div>
+                    {% for event in today_events %}
+                    <div class="mobile-list-item touchable" onclick="viewEvent({{ event.id }})">>
                         <div class="icon" style="background: linear-gradient(135deg, #dc3545, #b02a37);">
                             <i class="fas fa-calendar-day"></i>
                         </div>

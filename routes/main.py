@@ -47,7 +47,7 @@ def dashboard():
         Event.is_active == True
     ).order_by(Event.date).limit(10).all()
     
-    return render_template(mobile_template('main/dashboard_complete.html'),
+    return render_template('main/dashboard_complete.html',
                          registered_events=registered_events,
                          recommended_events=recommended_events,
                          notifications=unread_notifications,

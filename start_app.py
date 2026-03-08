@@ -20,7 +20,7 @@ def check_python_version():
     print("\n1. Checking Python version...")
     version = sys.version_info
     if version.major < 3 or (version.major == 3 and version.minor < 8):
-        print(f"❌ Python {version.major}.{version.minor} detected. Python 3.8+ required.")
+        print(f"ERROR: Python {version.major}.{version.minor} detected. Python 3.8+ required.")
         print("Please install Python 3.8 or higher from https://www.python.org/downloads/")
         return False
     print(f"✅ Python {version.major}.{version.minor}.{version.micro} detected - Compatible!")
@@ -32,7 +32,7 @@ def check_virtual_environment():
     venv_path = Path("venv")
     
     if not venv_path.exists() or not (venv_path / "Scripts" / "python.exe").exists():
-        print("❌ Virtual environment not found or corrupted")
+        print("ERROR: Virtual environment not found or corrupted")
         print("Creating new virtual environment...")
         
         try:
@@ -40,7 +40,7 @@ def check_virtual_environment():
             print("✅ Virtual environment created successfully!")
             return True
         except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to create virtual environment: {e}")
+            print(f"ERROR: Failed to create virtual environment: {e}")
             print("Please run: python -m venv venv")
             return False
     else:
@@ -60,7 +60,7 @@ def install_dependencies():
         pip_exe = Path("venv") / "bin" / "pip"
     
     if not python_exe.exists():
-        print("❌ Virtual environment Python not found")
+        print(f"ERROR: Virtual environment Python not found")
         return False
     
     try:
@@ -86,7 +86,7 @@ def install_dependencies():
         
         return True
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to install dependencies: {e}")
+        print(f"ERROR: Failed to install dependencies: {e}")
         return False
 
 def check_database():
@@ -95,10 +95,10 @@ def check_database():
     
     # Check if SQLite database exists (portable config)
     if Path("au_events.db").exists():
-        print("✅ SQLite database found!")
+        print("SQLite database found!")
         return True
     else:
-        print("⚠️ Database not found - will be created on first run")
+        print("Database not found - will be created on first run")
         return True
 
 def check_config():
@@ -120,7 +120,7 @@ def check_config():
         print(f"❌ Missing configuration files: {', '.join(missing_files)}")
         return False
     
-    print("✅ All configuration files present!")
+    print("All configuration files present!")
     return True
 
 def start_application():
@@ -134,18 +134,18 @@ def start_application():
         python_exe = Path("venv") / "bin" / "python"
     
     try:
-        print("🚀 Starting AU Event System...")
-        print("📱 Application will be available at: http://localhost:5000")
-        print("🛑 Press Ctrl+C to stop the application")
+        print("Starting AU Event System...")
+        print("Application will be available at: http://localhost:5000")
+        print("Press Ctrl+C to stop the application")
         print("-" * 60)
         
         # Start the application
         subprocess.run([str(python_exe), "app.py"], check=True)
         
     except KeyboardInterrupt:
-        print("\n\n⏹️ Application stopped by user")
+        print("\n\nApplication stopped by user")
     except subprocess.CalledProcessError as e:
-        print(f"\n❌ Application failed to start: {e}")
+        print(f"\n Application failed to start: {e}")
         print("\nTroubleshooting tips:")
         print("1. Check the error messages above")
         print("2. Ensure all dependencies are installed")
@@ -209,7 +209,7 @@ def main():
             break
     
     if all_checks_passed:
-        print("\n✅ All system checks passed!")
+        print("\n All system checks passed!")
         start_application()
     else:
         print("\n❌ System checks failed!")

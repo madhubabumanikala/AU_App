@@ -30,12 +30,12 @@ def init_database():
         # Commit all changes
         db.session.commit()
         
-        print("✅ Database initialization completed successfully")
+        print("SUCCESS: Database initialization completed successfully")
         logger.info("Database initialization completed successfully")
         return True
         
     except Exception as e:
-        print(f"❌ Database initialization failed: {e}")
+        print(f"ERROR: Database initialization failed: {e}")
         logger.error(f"Database initialization failed: {e}")
         db.session.rollback()
         return False
@@ -109,22 +109,22 @@ def create_default_admin():
         hash_val = existing_admin_by_email.password_hash
         # Check for empty, null, or invalid hash
         if not hash_val or hash_val == '' or len(hash_val.strip()) < 10 or not hash_val.startswith(('pbkdf2:', 'scrypt:', 'bcrypt', '$2b$')):
-            print(f"⚠️  Existing admin has invalid password hash: '{hash_val}', recreating...")
+            print(f"WARNING: Existing admin has invalid password hash: '{hash_val}', recreating...")
             db.session.delete(existing_admin_by_email)
             db.session.commit()
         else:
-            print("✅ Default admin account already exists with valid hash")
+            print("SUCCESS: Default admin account already exists with valid hash")
             return
     
     # If different admin exists by username, check its hash too
     elif existing_admin_by_username:
         hash_val = existing_admin_by_username.password_hash
         if not hash_val or hash_val == '' or len(hash_val.strip()) < 10 or not hash_val.startswith(('pbkdf2:', 'scrypt:', 'bcrypt', '$2b$')):
-            print(f"⚠️  Existing admin username has invalid password hash: '{hash_val}', recreating...")
+            print(f"WARNING: Existing admin username has invalid password hash: '{hash_val}', recreating...")
             db.session.delete(existing_admin_by_username)
             db.session.commit()
         else:
-            print("⚠️  Admin username already taken by different account with valid hash, skipping creation")
+            print("WARNING: Admin username already taken by different account with valid hash, skipping creation")
             return
     
     # Create default admin with proper password hash
