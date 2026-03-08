@@ -99,6 +99,12 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- COMPREHENSIVE DEBUG -->
+                <div style="background: red; color: white; padding: 5px; font-size: 11px; margin: 5px;">
+                    ENDPOINT: "{{ request.endpoint or 'None' }}" | 
+                    URL: "{{ request.url or 'None' }}" | 
+                    PATH: "{{ request.path or 'None' }}"
+                </div>
                 <ul class="navbar-nav me-auto">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
